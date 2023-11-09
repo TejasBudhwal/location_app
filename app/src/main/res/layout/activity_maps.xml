@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MapsActivity"
+    android:fitsSystemWindows="true">
+    <com.google.android.material.navigation.NavigationView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:id="@+id/nav_view"
+        app:headerLayout="@layout/header_nav"
+        app:menu="@menu/nav_menu"
+        android:layout_gravity="start"/>
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#0861FA"
+            tools:layout_editor_absoluteX="0dp"
+            tools:layout_editor_absoluteY="0dp" />
+
+        <fragment
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="0dp"
+            android:paddingTop="0dp"
+            app:barrierDirection="left"
+            app:cameraTilt="30"
+            app:uiRotateGestures="true"
+            app:uiZoomControls="true" />
+
+        <EditText
+            android:id="@+id/inputLocation"
+            android:layout_width="232dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="60dp"
+            android:layout_marginTop="-740dp"
+            android:background="@drawable/rounded_edittext"
+            android:backgroundTint="@color/white"
+            android:ems="10"
+            android:hint="Type Location"
+            android:inputType="text"
+            android:textColor="@color/black"
+            app:layout_constraintStart_toStartOf="@+id/map"
+            app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
+
+        <ImageView
+            android:id="@+id/imageViewSearch"
+            android:layout_width="40dp"
+            android:layout_height="34dp"
+            android:layout_marginLeft="300dp"
+            android:layout_marginTop="-43dp"
+            app:layout_constraintBottom_toBottomOf="@+id/inputLocation"
+            app:layout_constraintStart_toEndOf="@+id/inputLocation"
+            app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
+            app:srcCompat="@drawable/baseline_search_24" />
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="126dp"
+            android:layout_height="150dp"
+            android:text="Button"
+            android:visibility="visible"
+            tools:visibility="visible" />
+
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+
+
+
+
+
+
+
+    <!--    <Button-->
+    <!--        android:id="@+id/MapClicked"-->
+    <!--        android:layout_width="406dp"-->
+    <!--        android:layout_height="613dp"-->
+    <!--        android:text="Button"-->
+    <!--        android:visibility="invisible"-->
+    <!--        app:layout_constraintBottom_toBottomOf="@+id/map"-->
+    <!--        app:layout_constraintEnd_toEndOf="@+id/map"-->
+    <!--        app:layout_constraintStart_toStartOf="@+id/map" />-->
+
+    <!--    <LinearLayout-->
+    <!--        android:id="@+id/linearLayout"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent"-->
+    <!--        android:layout_marginTop="32dp"-->
+    <!--        android:gravity="center"-->
+    <!--        android:orientation="horizontal"-->
+    <!--        android:paddingLeft="16dp"-->
+    <!--        android:paddingRight="16dp"-->
+    <!--        app:layout_constraintBottom_toTopOf="@+id/map"-->
+    <!--        app:layout_constraintTop_toBottomOf="@+id/map"-->
+    <!--        app:layout_constraintVertical_bias="0.251"-->
+    <!--        tools:layout_editor_absoluteX="-16dp">-->
+
+    <!--        &lt;!&ndash;button for displaying hybrid map&ndash;&gt;-->
+    <!--        &lt;!&ndash;        <Button&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:id="@+id/idBtnHybridMap"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:layout_width="0dp"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:layout_height="wrap_content"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:layout_margin="5dp"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:layout_weight="1"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:background="@color/black"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:singleLine="false"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:text="Hybrid \n Map"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:textAllCaps="false"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:textColor="@color/white" />&ndash;&gt;-->
+
+    <!--        &lt;!&ndash;        &lt;!&ndash;button for displaying satellite map&ndash;&gt;&ndash;&gt;-->
+    <!--        &lt;!&ndash;        <Button&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:id="@+id/idBtnSatelliteMap"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:layout_width="0dp"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:layout_height="wrap_content"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:layout_margin="5dp"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:layout_weight="1"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:background="@color/black"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:singleLine="false"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:text="Satellite \n Map"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:textAllCaps="false"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:textColor="@color/white" />&ndash;&gt;-->
+
+    <!--        &lt;!&ndash;        &lt;!&ndash;button for displaying terrain map&ndash;&gt;&ndash;&gt;-->
+
+
+    <!--        &lt;!&ndash;        <Button&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:id="@+id/idBtnTerrainMap"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:layout_width="0dp"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:layout_height="wrap_content"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:layout_margin="5dp"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:layout_weight="1"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:background="@color/black"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:singleLine="false"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:text="Terrain \n Map"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:textAllCaps="false"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:textColor="@color/white" />&ndash;&gt;-->
+
+    <!--    </LinearLayout>-->
+    <!--    <com.google.android.gms.maps.MapView-->
+    <!--        android:id="@+id/mapView"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent"-->
+    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toTopOf="parent" />-->
+
+</androidx.drawerlayout.widget.DrawerLayout>

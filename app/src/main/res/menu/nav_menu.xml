@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/SimpleMap"
+            android:title="View Map"/>
+
+        <item
+            android:id="@+id/ShortestDistance"
+            android:title="Saved Locations"/>
+
+        <item
+            android:id="@+id/MarkedLocation"
+            android:title="Marked Location"/>
+    </group>
+
+
+
+        <item
+            android:title="Profile">
+            <menu>
+                <group android:checkableBehavior="single">
+                    <item
+                        android:id="@+id/logout_main"
+                        android:title="Logout"/>
+                </group>
+            </menu>
+        </item>
+
+
+
+    <item android:title="Communicate">
+        <menu>
+            <item
+                android:id="@+id/share"
+                android:title="Share"/>
+            <item
+                android:id="@+id/rate_us"
+                android:title="Rate US"/>
+        </menu>
+    </item>
+</menu>
