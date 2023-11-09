@@ -439,7 +439,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if(item.getItemId()==R.id.SimpleMap){
 
         }
-        else if(item.getItemId()==R.id.ShortestDistance){
+        else if(item.getItemId()==R.id.Saved_Locations){
             Intent intent = new Intent(MapsActivity.this,SavedActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                     | Intent.FLAG_ACTIVITY_CLEAR_TASK);

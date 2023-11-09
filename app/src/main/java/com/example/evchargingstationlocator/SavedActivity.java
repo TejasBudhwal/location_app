@@ -109,7 +109,7 @@ public class SavedActivity extends AppCompatActivity implements OnMapReadyCallba
 
         // using toolbar as ActionBar
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("View Map");
+        getSupportActionBar().setTitle("Saved Locations");
 
         toolbar.inflateMenu(R.menu.menu);
 //        mapView.findViewById(R.id.mapView);
@@ -140,7 +140,7 @@ public class SavedActivity extends AppCompatActivity implements OnMapReadyCallba
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         navigationView.setNavigationItemSelectedListener(this);
-        navigationView.setCheckedItem(R.id.SimpleMap);
+        navigationView.setCheckedItem(R.id.Saved_Locations);
 
         markAllMarkers();
 //        hybridMapBtn.setOnClickListener(new View.OnClickListener() {
@@ -428,7 +428,7 @@ public class SavedActivity extends AppCompatActivity implements OnMapReadyCallba
             startActivity(intent);
             finish();
         }
-        else if(item.getItemId()==R.id.ShortestDistance){
+        else if(item.getItemId()==R.id.Saved_Locations){
 //            Intent intent = new Intent(SimpleMapViewActivity.this,ShortestActivity.class);
 //            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
 //                    | Intent.FLAG_ACTIVITY_CLEAR_TASK);

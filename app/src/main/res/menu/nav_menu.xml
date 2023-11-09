@@ -7,7 +7,7 @@
             android:title="View Map"/>
 
         <item
-            android:id="@+id/ShortestDistance"
+            android:id="@+id/Saved_Locations"
             android:title="Saved Locations"/>
 
         <item
