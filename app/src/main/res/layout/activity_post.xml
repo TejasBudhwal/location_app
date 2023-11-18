@@ -20,69 +20,28 @@
             android:layout_marginHorizontal="10dp"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="5dp"
-            android:text="Post For Lost Item"
+            android:text="Post"
             android:textStyle="bold"
             android:textSize="25sp"
             android:padding="15dp"
             android:textColor="@color/white"
             android:textColorHint="@color/white" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/pfli_name_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="10dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="10dp"
-                android:background="#30ffffff"
-                android:text="Name: "
-                android:textSize="18sp"
-                android:padding="15dp"
-                android:textColor="@color/white"
-                android:textColorHint="@color/white" />
-
-            <TextView
-                android:id="@+id/pfli_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="10dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="10dp"
-                android:background="#30ffffff"
-                android:textSize="18sp"
-                android:padding="15dp"
-                android:textColor="@color/white"
-                android:textColorHint="@color/white" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/pfli_phone_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="10dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="20dp"
-                android:textSize="18sp"
-                android:background="#30ffffff"
-                android:text="Phone : "
-                android:padding="15dp"
-                android:textColor="@color/white"
-                android:textColorHint="@color/white" />
-
-        </LinearLayout>
 
         <EditText
+            android:id="@+id/pfli_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginVertical="5dp"
+            android:background="#30ffffff"
+            android:hint="Name"
+            android:padding="15dp"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white" />
+
+
+        <TextView
             android:id="@+id/pfli_location"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

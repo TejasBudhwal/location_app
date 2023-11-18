@@ -187,19 +187,27 @@ public class SavedActivity extends AppCompatActivity implements OnMapReadyCallba
 
                 for (DataSnapshot locationSnapshot : dataSnapshot.getChildren()) {
                     // Retrieve latitude and longitude from the database
-                    double latitude = locationSnapshot.child("Latitude").getValue(Double.class);
-                    double longitude = locationSnapshot.child("Longitude").getValue(Double.class);
+                    Double latitude = locationSnapshot.child("Latitude").getValue(Double.class);
+                    Double longitude = locationSnapshot.child("Longitude").getValue(Double.class);
 
-                    // Create a LatLng object from latitude and longitude
-                    LatLng locationLatLng = new LatLng(latitude, longitude);
+                    if (latitude != null && longitude != null) {
+                        double la = latitude; // Convert Double object to double
+                        double lo = longitude; // Convert Double object to double
 
-                    // Add a marker on the map for each location
-                    myMap.addMarker(new MarkerOptions()
-                                    .position(locationLatLng)
-                                    .title("Marker Title")
-                                    .snippet("Marker Snippet")
-                            // You can customize the marker icon, colors, etc. here
-                    );
+                        // Create a LatLng object from latitude and longitude
+                        LatLng locationLatLng = new LatLng(la, lo);
+
+                        // Add a marker on the map for each location
+                        myMap.addMarker(new MarkerOptions()
+                                        .position(locationLatLng)
+                                        .title("Marker Title")
+                                        .snippet("Marker Snippet")
+                                // You can customize the marker icon, colors, etc. here
+                        );
+                    } else {
+                        // Handle the case where latitude or longitude is null
+                        // Log an error, show a message, or skip adding the marker
+                    }
                 }
             }
 
@@ -398,6 +406,30 @@ public class SavedActivity extends AppCompatActivity implements OnMapReadyCallba
 
         // Show the bottom sheet menu
         bottomSheetDialog.show();
+
+        // Assuming you've already inflated the bottomSheetView
+        Button photosButton = bottomSheetView.findViewById(R.id.photosButton);
+
+        photosButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Redirect to CheckPostActivity when the "Photos" button is clicked
+                String message = String.valueOf(marker.getPosition());
+
+                Intent intent = new Intent(SavedActivity.this, CheckPostsActivity.class);
+                intent.putExtra("Location", message);
+                Double lat = marker.getPosition().latitude;
+                Double lon = marker.getPosition().longitude;
+                intent.putExtra("Latitude",lat);
+                intent.putExtra("Longitude",lon);
+                startActivity(intent);
+
+
+                // Dismiss the bottom sheet dialog if needed
+                bottomSheetDialog.dismiss();
+            }
+        });
+
 
         return false;
     }
