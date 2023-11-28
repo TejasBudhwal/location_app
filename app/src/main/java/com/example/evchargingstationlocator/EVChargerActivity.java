@@ -8,8 +8,10 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -49,7 +51,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Locale;
 
@@ -58,9 +66,12 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleMap.OnMapClickListener, NavigationView.OnNavigationItemSelectedListener {
+public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleMap.OnMapClickListener, NavigationView.OnNavigationItemSelectedListener {
 
     ImageView imageViewSearch;
     EditText inputlocation;
@@ -87,7 +98,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
+        setContentView(R.layout.activity_evcharger);
 
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
@@ -115,11 +126,33 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     double latitude = location.latitude;
                     double longitude = location.longitude;
 
-                    // Save the location to Firebase
-                    saveLocationToFirebase(latitude, longitude);
-                    Toast.makeText(MapsActivity.this, "Location saved to Firebase", Toast.LENGTH_SHORT).show();
+                    // show hospital using Google API (old code)
+//                    StringBuilder stringBuilder = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
+//                    stringBuilder.append("location="+latitude+","+longitude);
+//                    stringBuilder.append("&radius=20000");
+//                    stringBuilder.append("&type=hospital");
+//                    stringBuilder.append("&sensor=true");
+//                    stringBuilder.append("&key="+getResources().getString(R.string.google_map_key));
+//
+//                    String url1 = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=[AIzaSyCTwiwmIB9c5fkCs7bTiDzv2u6PyjgCkdY]&sensor=false&location=51.52864165,-0.10179430&radius=47022&keyword=%22london%20eye%22";
+//
+//                    String url = stringBuilder.toString();
+//
+//                    Toast.makeText(EVChargerActivity.this, "url = "+url1, Toast.LENGTH_SHORT).show();
+//
+//                    Object dataFetch[] = new Object[2];
+//                    dataFetch[0] = myMap;
+//                    dataFetch[1] = url1;
+//
+//                    FetchData fetchData = new FetchData(EVChargerActivity.this);
+//                    fetchData.execute(dataFetch);
+
+                    // NEW CODE (Overpass API)
+                    // Start AsyncTask to perform network operation
+                    new OverpassAPITask().execute(latitude, longitude);
+
                 } else {
-                    Toast.makeText(MapsActivity.this, "No location to save", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EVChargerActivity.this, "No location to save", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -128,7 +161,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // using toolbar as ActionBar
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("View Map");
+        getSupportActionBar().setTitle("EV Charger");
 
         toolbar.inflateMenu(R.menu.menu);
 //        mapView.findViewById(R.id.mapView);
@@ -165,55 +198,32 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View v) {
                 String location =inputlocation.getText().toString();
                 if(location==null){
-                    Toast.makeText(MapsActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EVChargerActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
                 }else{
-                    Geocoder geocoder=new Geocoder(MapsActivity.this, Locale.getDefault());
+                    Geocoder geocoder=new Geocoder(EVChargerActivity.this, Locale.getDefault());
                     try {
                         List<Address> listAddress=geocoder.getFromLocationName(location,1);
                         if(listAddress.size()>0){
                             myMap.clear();
                             LatLng latLng=new LatLng(listAddress.get(0).getLatitude(),listAddress.get(0).getLongitude());
                             // Add a marker on the map coordinates.
-                            marker = myMap.addMarker(new MarkerOptions().position(latLng).title(""+listAddress.get(0).getCountryName()));
+                            marker = myMap.addMarker(new MarkerOptions().position(latLng).title("Current Location"));
 
 //                            myMap.setOnMarkerClickListener(this);
                             // Move the camera to the map coordinates and zoom in closer.
                             myMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-                            //Toast.makeText(MapsActivity.this, listAddress.get(0).getCountryName(), Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(EVChargerActivity.this, listAddress.get(0).getCountryName(), Toast.LENGTH_SHORT).show();
 //        googleMap.animateCamera(CameraUpdateFactory.zoomTo(15));
                         }
                     } catch (IOException e) {
-                        Toast.makeText(MapsActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(EVChargerActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
 //                        throw new RuntimeException(e);
                     }
                 }
             }
         });
         navigationView.setNavigationItemSelectedListener(this);
-        navigationView.setCheckedItem(R.id.SimpleMap);
-//        hybridMapBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                myMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-//            }
-//        });
-//
-//        terrainMapBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                // below line is to change
-//                // the type of terrain map.
-//                myMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-//            }
-//        });
-//        satelliteMapBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                // below line is to change the
-//                // type of satellite map.
-//                myMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-//            }
-//        });
+        navigationView.setCheckedItem(R.id.MarkedLocation);
     }
 
     private boolean checkGooglePlayServices() {
@@ -225,7 +235,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             Dialog dialog = googleApiAvailability.getErrorDialog(this, result, 201, new DialogInterface.OnCancelListener() {
                 @Override
                 public void onCancel(DialogInterface dialog) {
-                    Toast.makeText(MapsActivity.this, "User Canceled Dialoge", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EVChargerActivity.this, "User Canceled Dialoge", Toast.LENGTH_SHORT).show();
                 }
             });
             dialog.show();
@@ -241,7 +251,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onPermissionGranted(PermissionGrantedResponse permissionGrantedResponse) {
                 isPermissionGranter = true;
-                Toast.makeText(MapsActivity.this, "Permission Granted", Toast.LENGTH_SHORT).show();
+                Toast.makeText(EVChargerActivity.this, "Permission Granted", Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -267,22 +277,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
         LatLng latLng = new LatLng(35.00116, 135.7681);
-        Geocoder geocoder=new Geocoder(MapsActivity.this, Locale.getDefault());
+        Geocoder geocoder=new Geocoder(EVChargerActivity.this, Locale.getDefault());
         try {
             List<Address> listAddress=geocoder.getFromLocation(latLng.latitude,latLng.longitude,1);
             if(listAddress.size()>0){
                 myMap.clear();
                 // Add a marker on the map coordinates.
-                marker = myMap.addMarker(new MarkerOptions().position(latLng).title(""+listAddress.get(0).getCountryName()));
+                marker = myMap.addMarker(new MarkerOptions().position(latLng).title("Current Location"));
 
                 myMap.setOnMarkerClickListener(this);
                 // Move the camera to the map coordinates and zoom in closer.
                 myMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-                //Toast.makeText(MapsActivity.this, listAddress.get(0).getCountryName(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(EVChargerActivity.this, listAddress.get(0).getCountryName(), Toast.LENGTH_SHORT).show();
 //        googleMap.animateCamera(CameraUpdateFactory.zoomTo(15));
             }
         } catch (IOException e) {
-            Toast.makeText(MapsActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
+            Toast.makeText(EVChargerActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
 //                        throw new RuntimeException(e);
         }
 
@@ -311,56 +321,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         googleMap.setMyLocationEnabled(true);
 
     }
-//    @Override
-//    protected void onStart(){
-//        super.onStart();
-//        mapView.onStart();
-//    }
-//
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        mapView.onResume();
-//    }
-//
-//    @Override
-//    protected void onPause() {
-//        super.onPause();
-//        mapView.onPause();
-//    }
-//
-//    @Override
-//    protected void onStop() {
-//        super.onStop();
-//        mapView.onStop();
-//    }
-//
-//    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-//        mapView.onDestroy();
-//    }
-//
-//    @Override
-//    public void onSaveInstanceState(@NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
-//        super.onSaveInstanceState(outState, outPersistentState);
-//        mapView.onSaveInstanceState(outState);
-//    }
-//
-//    @Override
-//    public void onLowMemory() {
-//        super.onLowMemory();
-//        mapView.onLowMemory();
-//    }
-
-
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.menu,menu);
-//
-//        return true;
-//    }
-//    @Override
 
 
     @Override
@@ -369,10 +329,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         return true;
     }
 
-    //    @Override
-//    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-//        inflater.inflate(R.menu.menu, menu);
-//    }
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if(item.getItemId()==R.id.noneMap){
@@ -397,26 +353,28 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public boolean onMarkerClick(@NonNull Marker marker) {
         //Toast.makeText(this, "My Position"+marker.getPosition(), Toast.LENGTH_SHORT).show();
 
+
+
         return false;
     }
 
     @Override
     public void onMapClick(@NonNull LatLng latLng) {
-        Geocoder geocoder = new Geocoder(MapsActivity.this, Locale.getDefault());
+        Geocoder geocoder = new Geocoder(EVChargerActivity.this, Locale.getDefault());
         try {
             List<Address> listAddress = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
             if (listAddress.size() > 0) {
                 myMap.clear();
                 // Add a marker on the map coordinates.
-                marker = myMap.addMarker(new MarkerOptions().position(latLng).title("" + listAddress.get(0).getCountryName()));
+                marker = myMap.addMarker(new MarkerOptions().position(latLng).title("Current Location"));
 
                 myMap.setOnMarkerClickListener(this);
                 // Move the camera to the map coordinates and zoom in closer.
                 myMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-                //Toast.makeText(MapsActivity.this, listAddress.get(0).getCountryName(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(EVChargerActivity.this, listAddress.get(0).getCountryName(), Toast.LENGTH_SHORT).show();
             }
         } catch (IOException e) {
-            Toast.makeText(MapsActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
+            Toast.makeText(EVChargerActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -435,21 +393,25 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
         if(item.getItemId()==R.id.SimpleMap){
-
+            Intent intent = new Intent(EVChargerActivity.this,MapsActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                    | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
         }
         else if(item.getItemId()==R.id.Saved_Locations){
-            Intent intent = new Intent(MapsActivity.this,SavedActivity.class);
+            Intent intent = new Intent(EVChargerActivity.this,SavedActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                     | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
         }
         else if(item.getItemId()==R.id.MarkedLocation){
-            Intent intent = new Intent(MapsActivity.this,EVChargerActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                    | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
+//            Intent intent = new Intent(EVChargerActivity.this,EVChargerActivity.class);
+//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+//                    | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//            startActivity(intent);
+//            finish();
         }
         else if(item.getItemId()==R.id.share){
             Toast.makeText(this, "Please Share", Toast.LENGTH_SHORT).show();
@@ -458,7 +420,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             Toast.makeText(this, "Please Rate US", Toast.LENGTH_SHORT).show();
         }
         else if(item.getItemId()==R.id.logout_main){
-            Intent intent = new Intent(MapsActivity.this,LoginActivity.class);
+            Intent intent = new Intent(EVChargerActivity.this,LoginActivity.class);
             Toast.makeText(this, "LogOut Successfull", Toast.LENGTH_SHORT).show();
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                     | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -470,11 +432,82 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-    private void saveLocationToFirebase(double latitude, double longitude) {
-        // Create a new location entry
-        DatabaseReference newLocationRef = databaseReference.push();
-        newLocationRef.child("Latitude").setValue(latitude);
-        newLocationRef.child("Longitude").setValue(longitude);
+    // AsyncTask to perform network operation
+    private class OverpassAPITask extends AsyncTask<Double, Void, String> {
+        @Override
+        protected String doInBackground(Double... params) {
+            double latitude = params[0];
+            double longitude = params[1];
+
+            try {
+                String query = "[out:json];" +
+                        "node(around:10000," + latitude + "," + longitude + ")[amenity=fuel];out;";
+
+                String url = "https://overpass-api.de/api/interpreter?data=" + URLEncoder.encode(query, "UTF-8");
+
+                HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+                conn.setRequestMethod("GET");
+
+                InputStream inputStream = conn.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+
+                reader.close();
+                inputStream.close();
+                conn.disconnect();
+
+                return response.toString();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String jsonResponse) {
+            if (jsonResponse != null) {
+                // Process the JSON response here
+                Log.d("JSON_RESPONSE", jsonResponse); // Logging the jsonResponse
+                //Toast.makeText(EVChargerActivity.this, "json = " + jsonResponse, Toast.LENGTH_SHORT).show();
+                try {
+                    JSONObject jsonResponseObj = new JSONObject(jsonResponse);
+                    JSONArray elementsArray = jsonResponseObj.getJSONArray("elements");
+
+                    for (int i = 0; i < elementsArray.length(); i++) {
+                        JSONObject element = elementsArray.getJSONObject(i);
+                        if (element.has("lat") && element.has("lon")) {
+                            double latitude = element.getDouble("lat");
+                            double longitude = element.getDouble("lon");
+                            String fuelName = "EV Charger Station"; // Default value if name is not available
+                            JSONObject tags = element.optJSONObject("tags");
+                            if (tags != null && tags.has("name")) {
+                                fuelName = tags.getString("name");
+                            }
+
+
+                            // Create LatLng object for EV charger station location
+                            LatLng fuelLatLng = new LatLng(latitude, longitude);
+
+                            // Add marker for each EV charger station location
+                            MarkerOptions markerOptions = new MarkerOptions()
+                                    .position(fuelLatLng)
+                                    .title(fuelName); // Get EV charger station name if available, else use default "EV Charger Station" as title
+
+                            // Add the marker to the map
+                            Marker fuelMarker = myMap.addMarker(markerOptions);
+                        }
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                Toast.makeText(EVChargerActivity.this, "Error fetching data", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
 }

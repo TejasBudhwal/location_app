@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".FeatureSelect"
-    android:background="@drawable/bg">
+    android:background="@drawable/background2">
 
     <LinearLayout
         android:layout_width="match_parent"

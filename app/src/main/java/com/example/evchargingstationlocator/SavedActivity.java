@@ -96,7 +96,7 @@ public class SavedActivity extends AppCompatActivity implements OnMapReadyCallba
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
         String user_id = currentUser.getUid();
-        Toast.makeText(this, ""+user_id, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, ""+user_id, Toast.LENGTH_SHORT).show();
         databaseReference = firebaseDatabase.getReference("Users").child(user_id).child("Locations");
 
 
@@ -282,7 +282,7 @@ public class SavedActivity extends AppCompatActivity implements OnMapReadyCallba
                 myMap.setOnMarkerClickListener(this);
                 // Move the camera to the map coordinates and zoom in closer.
                 myMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-                Toast.makeText(SavedActivity.this, listAddress.get(0).getCountryName(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(SavedActivity.this, listAddress.get(0).getCountryName(), Toast.LENGTH_SHORT).show();
 //        googleMap.animateCamera(CameraUpdateFactory.zoomTo(15));
             }
         } catch (IOException e) {
@@ -399,37 +399,18 @@ public class SavedActivity extends AppCompatActivity implements OnMapReadyCallba
 
     @Override
     public boolean onMarkerClick(@NonNull Marker marker) {
-        Toast.makeText(this, "My Position"+marker.getPosition(), Toast.LENGTH_SHORT).show();
-        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(SavedActivity.this);
-        View bottomSheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_menu, null);
-        bottomSheetDialog.setContentView(bottomSheetView);
+        //Toast.makeText(this, "My Position"+marker.getPosition(), Toast.LENGTH_SHORT).show();
 
-        // Show the bottom sheet menu
-        bottomSheetDialog.show();
+        // Redirect to CheckPostActivity when the "Photos" button is clicked
+        String message = String.valueOf(marker.getPosition());
 
-        // Assuming you've already inflated the bottomSheetView
-        Button photosButton = bottomSheetView.findViewById(R.id.photosButton);
-
-        photosButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Redirect to CheckPostActivity when the "Photos" button is clicked
-                String message = String.valueOf(marker.getPosition());
-
-                Intent intent = new Intent(SavedActivity.this, CheckPostsActivity.class);
-                intent.putExtra("Location", message);
-                Double lat = marker.getPosition().latitude;
-                Double lon = marker.getPosition().longitude;
-                intent.putExtra("Latitude",lat);
-                intent.putExtra("Longitude",lon);
-                startActivity(intent);
-
-
-                // Dismiss the bottom sheet dialog if needed
-                bottomSheetDialog.dismiss();
-            }
-        });
-
+        Intent intent = new Intent(SavedActivity.this, CheckPostsActivity.class);
+        intent.putExtra("Location", message);
+        Double lat = marker.getPosition().latitude;
+        Double lon = marker.getPosition().longitude;
+        intent.putExtra("Latitude",lat);
+        intent.putExtra("Longitude",lon);
+        startActivity(intent);
 
         return false;
     }
@@ -468,11 +449,11 @@ public class SavedActivity extends AppCompatActivity implements OnMapReadyCallba
 //            finish();
         }
         else if(item.getItemId()==R.id.MarkedLocation){
-//            Intent intent = new Intent(SimpleMapViewActivity.this,MarkedActivity.class);
-//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-//                    | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//            startActivity(intent);
-//            finish();
+            Intent intent = new Intent(SavedActivity.this,EVChargerActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                    | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
         }
         else if(item.getItemId()==R.id.share){
             Toast.makeText(this, "Please Share", Toast.LENGTH_SHORT).show();

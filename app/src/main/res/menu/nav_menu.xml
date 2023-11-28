@@ -12,7 +12,7 @@
 
         <item
             android:id="@+id/MarkedLocation"
-            android:title="Marked Location"/>
+            android:title="EV Charger"/>
     </group>
 
 
