@@ -186,7 +186,7 @@ public class PostActivity extends AppCompatActivity {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(PostActivity.this, "An error occured", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(PostActivity.this, "An error occured", Toast.LENGTH_SHORT).show();
             }
         });
 

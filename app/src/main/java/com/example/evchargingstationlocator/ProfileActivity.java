@@ -74,7 +74,7 @@ public class ProfileActivity extends AppCompatActivity {
                             String userID = snapshot.getKey();
 
                             // Now you have obtained the userID
-                            Toast.makeText(ProfileActivity.this, "User ID: " + userID, Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(ProfileActivity.this, "User ID: " + userID, Toast.LENGTH_SHORT).show();
 
                             // Retrieve other user information using this userID if needed
                             // For example:
