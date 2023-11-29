@@ -175,7 +175,7 @@ public class PostActivity extends AppCompatActivity {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(PostActivity.this, "Failed to fetch data", Toast.LENGTH_SHORT).show();
+                Toast.makeText(PostActivity.this, "No posts exist for this location", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -278,6 +278,8 @@ public class PostActivity extends AppCompatActivity {
                                             map.put("time",currentTime);
                                             map.put("message", message.getText().toString());
                                             map.put("location", Location);
+                                            map.put("latitude", Latitude);
+                                            map.put("longitude", Longitude);
                                             map.put("publisher", userID);
                                             map.put("imageName", Image_name.getText().toString());
 

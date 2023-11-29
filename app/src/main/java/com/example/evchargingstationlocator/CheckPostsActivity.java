@@ -110,11 +110,23 @@ public class CheckPostsActivity extends AppCompatActivity {
                     for (DataSnapshot locationSnapshot : dataSnapshot.getChildren()) {
                         for (DataSnapshot postsSnapshot : locationSnapshot.child("Posts").getChildren()) {
                             // Create a Posts object and populate its fields from the database
-                            Posts posts = postsSnapshot.getValue(Posts.class);
+                            Double postLatitude = postsSnapshot.child("latitude").getValue(Double.class);
+                            Double postLongitude = postsSnapshot.child("longitude").getValue(Double.class);
 
-                            // Add the retrieved post to the postsList
-                            if (posts != null) {
-                                postsList.add(posts);
+                            //Toast.makeText(CheckPostsActivity.this, "latitude = "+postLatitude+" and longitude = "+postLongitude, Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(CheckPostsActivity.this, "Latitude = "+Latitude+" and Longitude = "+Longitude, Toast.LENGTH_SHORT).show();
+
+                            // Check if the post's latitude and longitude match the selected Latitude and Longitude
+                            if (postLatitude != null && postLongitude != null &&
+                                    Math.abs(postLatitude - Latitude) <= 0.001 &&
+                                    Math.abs(postLongitude - Longitude) <= 0.001) {
+                                // Create a Posts object and populate its fields from the database
+                                Posts posts = postsSnapshot.getValue(Posts.class);
+
+                                // Add the retrieved post to the postsList
+                                if (posts != null) {
+                                    postsList.add(posts);
+                                }
                             }
                         }
                     }

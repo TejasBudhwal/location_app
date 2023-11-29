@@ -33,10 +33,9 @@
                     android:layout_gravity="center"
                     android:text="Name"
                     android:layout_margin="5dp"
-                    android:textSize="18sp"
+                    android:textSize="14sp"
                     android:padding="5dp"
                     android:textColor="@color/black"/>
-
 
             </LinearLayout>
 
@@ -79,11 +78,12 @@
 
         <ImageView
             android:id="@+id/imageView"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
             android:layout_margin="3dp"
             android:adjustViewBounds="true"
-            android:scaleType="centerCrop"/>
+            android:scaleType="centerCrop"
+            android:layout_gravity="center"/>
 
         <TextView
             android:id="@+id/location"
