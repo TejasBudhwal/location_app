@@ -1,44 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
-    tools:context=".ProfileActivity"
-    android:background="@drawable/bg">
+    android:paddingStart="24dp"
+    android:paddingEnd="24dp"
+    android:paddingTop="50dp"
+    android:paddingBottom="40dp"
+    android:background="@drawable/buildings2">
+
+    <Button
+        android:id="@+id/backButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Back"
+        android:background="@color/black"
+        android:textColor="@color/white"/>
+
+    <TextView
+        android:id="@+id/profileHeadingTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Profile"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/white"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:layout_gravity="center"
+        android:padding="20dp"/>
+
+    <TextView
+        android:id="@+id/emailValueTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Email:"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/white" />
 
     <TextView
         android:id="@+id/emailTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Email:"
+        android:text="example@example.com"
+        android:textSize="16sp"
+        android:textColor="@color/quantum_grey200" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/quantum_grey50"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/fullNameValueTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Full Name:"
         android:textSize="18sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:textColor="@color/white" />
 
     <TextView
         android:id="@+id/fullNameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Full Name:"
+        android:text="John Doe"
+        android:textSize="16sp"
+        android:textColor="@color/quantum_grey200" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/quantum_grey50"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/phoneNumberValueTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Phone Number:"
         android:textSize="18sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:textColor="@color/white" />
 
     <TextView
         android:id="@+id/phoneNumberTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Phone Number:"
+        android:text="123-456-7890"
+        android:textSize="16sp"
+        android:textColor="@color/quantum_grey200" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/quantum_grey50"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/userNameValueTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Username:"
         android:textSize="18sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:textColor="@color/white" />
 
     <TextView
         android:id="@+id/userNameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Username:"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        android:text="johndoe123"
+        android:textSize="16sp"
+        android:textColor="@color/quantum_grey200" />
 
 </LinearLayout>

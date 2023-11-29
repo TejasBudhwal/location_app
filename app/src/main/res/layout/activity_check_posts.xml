@@ -11,46 +11,56 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <Button
+                    android:id="@+id/back"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Back" />
+                <TextView
+                    android:id="@+id/cffi"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginHorizontal="10dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="5dp"
+                    android:text="Posts Feed"
+                    android:gravity="center_horizontal"
+                    android:textStyle="bold"
+                    android:textSize="30sp"
+                    android:padding="15dp"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/white" />
+            </LinearLayout>
+
             <Button
-                android:id="@+id/back"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Back" />
-            <TextView
-                android:id="@+id/cffi"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:id="@+id/add_post"
                 android:layout_gravity="center"
-                android:layout_marginHorizontal="10dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="5dp"
-                android:text="Feed Of Posts"
-                android:textStyle="bold"
-                android:textSize="25sp"
-                android:padding="15dp"
-                android:textColor="@color/white"
-                android:textColorHint="@color/white" />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Post" />
 
         </LinearLayout>
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="wrap_content" />
 
-            <Button
-                android:id="@+id/add_post"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Button" />
         </FrameLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

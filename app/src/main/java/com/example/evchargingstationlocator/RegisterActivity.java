@@ -113,7 +113,7 @@ public class RegisterActivity extends AppCompatActivity {
                     return;
                 }
 
-                Users users = new Users(Name, Phone, Username);
+                Users users = new Users(Name, Phone, Username, email);
                 db = FirebaseDatabase.getInstance();
                 reference = db.getReference("Users");
                 String uID = reference.push().getKey();

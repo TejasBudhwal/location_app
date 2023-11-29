@@ -466,13 +466,21 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
         else if(item.getItemId()==R.id.rate_us){
             Toast.makeText(this, "Please Rate US", Toast.LENGTH_SHORT).show();
         }
-        else if(item.getItemId()==R.id.logout_main){
-            Intent intent = new Intent(EVChargerActivity.this,LoginActivity.class);
-            Toast.makeText(this, "LogOut Successfull", Toast.LENGTH_SHORT).show();
+        else if(item.getItemId()==R.id.profile_main){
+            Intent intent = new Intent(EVChargerActivity.this,ProfileActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                     | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
+        }
+        else if(item.getItemId()==R.id.logout_main){
+            FirebaseAuth.getInstance().signOut(); // Sign out the user from Firebase
+
+            Intent intent = new Intent(EVChargerActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+            Toast.makeText(this, "Logout Successful", Toast.LENGTH_SHORT).show();
         }
         drawerLayout.closeDrawer(GravityCompat.START);
         return super.onOptionsItemSelected(item);

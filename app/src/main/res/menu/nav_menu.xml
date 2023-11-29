@@ -17,16 +17,17 @@
 
 
 
-        <item
-            android:title="Profile">
-            <menu>
-                <group android:checkableBehavior="single">
-                    <item
-                        android:id="@+id/logout_main"
-                        android:title="Logout"/>
-                </group>
-            </menu>
-        </item>
+    <item android:title="User">
+        <menu>
+            <item
+                android:id="@+id/profile_main"
+                android:title="Profile"/>
+
+            <item
+                android:id="@+id/logout_main"
+                android:title="Logout"/>
+        </menu>
+    </item>
 
 
 

@@ -94,70 +94,45 @@ public class CheckPostsActivity extends AppCompatActivity {
     }
 
     private void GetDataFromFirebase() {
-
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-
-        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-        String user_id = currentUser.getUid();
-// Reference to the user's locations node (replace "userId" with the actual user ID)
-        DatabaseReference userLocationsRef = databaseReference.child("Users").child(user_id).child("Locations");
-        Query query = userLocationsRef;
 
-        query.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+        if (currentUser != null) {
+            String user_id = currentUser.getUid();
+            DatabaseReference userLocationsRef = databaseReference.child("Users").child(user_id).child("Locations");
 
-                ClearAll();
+            userLocationsRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    ClearAll();
 
-                for(DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    for (DataSnapshot locationSnapshot : dataSnapshot.getChildren()) {
+                        for (DataSnapshot postsSnapshot : locationSnapshot.child("Posts").getChildren()) {
+                            // Create a Posts object and populate its fields from the database
+                            Posts posts = postsSnapshot.getValue(Posts.class);
 
-                    Double latitude = snapshot.child("Latitude").getValue(Double.class);
-                    Double longitude = snapshot.child("Longitude").getValue(Double.class);
-
-                    // Check if latitude and longitude are not null
-                    if (latitude != null && longitude != null) {
-                        if (Math.abs(latitude - Latitude) > 0.001 || Math.abs(longitude - Longitude) > 0.001) {
-                            continue; // Skip further processing if the difference is more than 0.001
+                            // Add the retrieved post to the postsList
+                            if (posts != null) {
+                                postsList.add(posts);
+                            }
                         }
-                    } else {
-                        // Handle the case where latitude or longitude is null (optional)
-                        // For example, log a message or take necessary action
-                        Log.e("Null Values", "Latitude or Longitude is null for this snapshot");
-                        continue;
                     }
 
-                    Posts posts = new Posts();
-
-                    String newSnapshot = String.valueOf(snapshot);
-                    String sanitizedKey = newSnapshot.replace(".", "_");
-
-                    DataSnapshot postsSnapshot = snapshot.child(sanitizedKey).child("Posts");
-                    if (postsSnapshot.exists()) {
-                        posts.setPostImage(postsSnapshot.child("postImage").getValue(String.class));
-                        posts.setImageName(postsSnapshot.child("imageName").getValue(String.class));
-                        posts.setLocation(postsSnapshot.child("location").getValue(String.class));
-                        posts.setMessage(postsSnapshot.child("message").getValue(String.class));
-                        posts.setDate(postsSnapshot.child("date").getValue(String.class));
-                        posts.setTime(postsSnapshot.child("time").getValue(String.class));
-                        postsList.add(posts);
-                    }
-                    break;
+                    // Set up the RecyclerView adapter
+                    postAdapter = new PostAdapter(getApplicationContext(), postsList);
+                    recyclerView.setAdapter(postAdapter);
+                    postAdapter.notifyDataSetChanged();
                 }
 
-                postAdapter = new PostAdapter(getApplicationContext(), postsList);
-                recyclerView.setAdapter(postAdapter);
-                postAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    // Handle onCancelled event
+                }
+            });
+        }
     }
+
 
     private void ClearAll(){
         if(postsList != null)
