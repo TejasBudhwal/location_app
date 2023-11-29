@@ -47,10 +47,10 @@
 
         <EditText
             android:id="@+id/inputLocation"
-            android:layout_width="232dp"
-            android:layout_height="50dp"
+            android:layout_width="205dp"
+            android:layout_height="40dp"
             android:layout_marginLeft="60dp"
-            android:layout_marginTop="-740dp"
+            android:layout_marginTop="-681dp"
             android:background="@drawable/rounded_edittext"
             android:backgroundTint="@color/white"
             android:ems="10"
@@ -64,8 +64,8 @@
             android:id="@+id/imageViewSearch"
             android:layout_width="40dp"
             android:layout_height="34dp"
-            android:layout_marginLeft="300dp"
-            android:layout_marginTop="-43dp"
+            android:layout_marginLeft="265dp"
+            android:layout_marginTop="-37dp"
             app:layout_constraintBottom_toBottomOf="@+id/inputLocation"
             app:layout_constraintStart_toEndOf="@+id/inputLocation"
             app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
@@ -73,11 +73,20 @@
 
         <Button
             android:id="@+id/button"
-            android:layout_width="126dp"
-            android:layout_height="150dp"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:layout_marginTop="555dp"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/button_selector"
             android:text="Save Location"
-            android:visibility="visible"
-            tools:visibility="visible" />
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:drawablePadding="8dp"
+            android:padding="16dp"
+            android:gravity="center"
+            android:drawableStart="@drawable/img" />
+
 
 
     </com.google.android.material.appbar.AppBarLayout>

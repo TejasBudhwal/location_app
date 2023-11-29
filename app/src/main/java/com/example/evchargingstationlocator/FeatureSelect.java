@@ -32,16 +32,11 @@ public class FeatureSelect extends AppCompatActivity {
         email = findViewById(R.id.user_email);
         user = mAuth.getCurrentUser();
 
-        if(user == null)
-        {
-            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-            startActivity(intent);
-            finish();
-        }
-        else
-        {
-            email.setText(user.getEmail());
-        }
+
+        Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
+        startActivity(intent);
+        finish();
+
 
         profile.setOnClickListener(new View.OnClickListener() {
             @Override

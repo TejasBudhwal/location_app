@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
@@ -30,13 +31,17 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.navigation.NavigationView;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
@@ -58,6 +63,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -70,6 +76,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+//import com.graphhopper.directions.api.client.ApiException;
+//import com.graphhopper.directions.api.client.api.RoutingApi;
+//import com.graphhopper.directions.api.client.model.ResponseInstruction;
+//import com.graphhopper.directions.api.client.model.RouteResponse;
+//import com.graphhopper.directions.api.client.model.RouteResponsePath;
+//import com.graphhopper.directions.api.client.GraphHopperDirections;
 
 public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleMap.OnMapClickListener, NavigationView.OnNavigationItemSelectedListener {
 
@@ -80,6 +92,8 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
 
     DrawerLayout drawerLayout;
     NavigationView navigationView;
+
+    double mylat, mylong;
 
     FirebaseDatabase firebaseDatabase;
 
@@ -150,7 +164,12 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
                     // NEW CODE (Overpass API)
                     // Start AsyncTask to perform network operation
                     new OverpassAPITask().execute(latitude, longitude);
-
+                    // Define the zoom level you want when the camera moves
+                    float zoomLevel = 13.0f; // You can adjust the zoom level as needed
+                    // Create a CameraUpdate to zoom in on the marker
+                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(location, zoomLevel);
+                    // Move the camera to the marker with the defined zoom level
+                    myMap.animateCamera(cameraUpdate);
                 } else {
                     Toast.makeText(EVChargerActivity.this, "No location to save", Toast.LENGTH_SHORT).show();
                 }
@@ -284,7 +303,8 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
                 myMap.clear();
                 // Add a marker on the map coordinates.
                 marker = myMap.addMarker(new MarkerOptions().position(latLng).title("Current Location"));
-
+                mylat = latLng.latitude;
+                mylong = latLng.longitude;
                 myMap.setOnMarkerClickListener(this);
                 // Move the camera to the map coordinates and zoom in closer.
                 myMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
@@ -353,8 +373,34 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
     public boolean onMarkerClick(@NonNull Marker marker) {
         //Toast.makeText(this, "My Position"+marker.getPosition(), Toast.LENGTH_SHORT).show();
 
+        if( mylat == marker.getPosition().latitude && mylong == marker.getPosition().longitude ){
+            //Toast.makeText(this, "This is your current position marker", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            double startlat = mylat;
+            double startlong = mylong;
+            double endlat = marker.getPosition().latitude;
+            double endlong = marker.getPosition().longitude;
 
+            //Toast.makeText(this, "This is a different marker", Toast.LENGTH_SHORT).show();
 
+            String startPoint = ""+startlat+","+startlong;
+            String endPoint = ""+endlat+","+endlong;
+
+            GraphHopperRoutingTask routingTask = new GraphHopperRoutingTask(startPoint, endPoint, myMap, EVChargerActivity.this, new GraphHopperRoutingTask.RoutingCallback() {
+                @Override
+                public void onRoutingCompleted(String result) {
+                    // Handle the routing result here
+                    if (result != null) {
+                        Log.e("result = ", result);
+                    } else {
+                        Log.e("result = ", "no result obtained");
+                    }
+                }
+            });
+
+            routingTask.execute();
+        }
         return false;
     }
 
@@ -367,7 +413,8 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
                 myMap.clear();
                 // Add a marker on the map coordinates.
                 marker = myMap.addMarker(new MarkerOptions().position(latLng).title("Current Location"));
-
+                mylat = latLng.latitude;
+                mylong = latLng.longitude;
                 myMap.setOnMarkerClickListener(this);
                 // Move the camera to the map coordinates and zoom in closer.
                 myMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
@@ -439,6 +486,9 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
             double latitude = params[0];
             double longitude = params[1];
 
+            mylat = latitude;
+            mylong = longitude;
+
             try {
                 String query = "[out:json];" +
                         "node(around:10000," + latitude + "," + longitude + ")[amenity=fuel];out;";
@@ -477,7 +527,8 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
                     JSONObject jsonResponseObj = new JSONObject(jsonResponse);
                     JSONArray elementsArray = jsonResponseObj.getJSONArray("elements");
 
-                    for (int i = 0; i < elementsArray.length(); i++) {
+                    int i=0;
+                    for (; i < elementsArray.length(); i++) {
                         JSONObject element = elementsArray.getJSONObject(i);
                         if (element.has("lat") && element.has("lon")) {
                             double latitude = element.getDouble("lat");
@@ -499,8 +550,25 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
 
                             // Add the marker to the map
                             Marker fuelMarker = myMap.addMarker(markerOptions);
+                            fuelMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+
+                            //myMap.setOnMarkerClickListener((GoogleMap.OnMarkerClickListener) fuelMarker);
                         }
                     }
+
+                    if(i==0)
+                    {
+                        Toast.makeText(EVChargerActivity.this, "No charging stations found nearby", Toast.LENGTH_SHORT).show();
+                    }
+                    else if(i==1)
+                    {
+                        Toast.makeText(EVChargerActivity.this, "Found "+i+" charging station nearby", Toast.LENGTH_SHORT).show();
+                    }
+                    else
+                    {
+                        Toast.makeText(EVChargerActivity.this, "Found "+i+" charging stations nearby", Toast.LENGTH_SHORT).show();
+                    }
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
