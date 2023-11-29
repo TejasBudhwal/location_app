@@ -54,9 +54,11 @@
             android:background="@drawable/rounded_edittext"
             android:backgroundTint="@color/white"
             android:ems="10"
+            android:textSize="15sp"
             android:hint="Type Location"
             android:inputType="text"
             android:textColor="@color/black"
+            android:paddingStart="15dp"
             app:layout_constraintStart_toStartOf="@+id/map"
             app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
 
@@ -75,9 +77,12 @@
             android:id="@+id/button"
             android:layout_width="126dp"
             android:layout_height="150dp"
-            android:text="EV Chargers"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="550dp"
+            android:background="@drawable/ic_baseline_charging_station_24"
             android:visibility="visible"
             tools:visibility="visible" />
+
 
 
     </com.google.android.material.appbar.AppBarLayout>

@@ -52,10 +52,10 @@ public class PostActivity extends AppCompatActivity {
 
     FirebaseAuth fAuth;
     String userID;
-    Button selectImage, post;
+    Button selectImage, post, back;
     ImageView selected_image;
     TextView location;
-        EditText message;
+    EditText message;
     ProgressDialog progressDialog;
     EditText Image_name;
     Uri imageUri;
@@ -95,6 +95,17 @@ public class PostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
 
+        back = findViewById(R.id.backButton);
+
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), SavedActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
         init();
 
         auth = FirebaseAuth.getInstance();
@@ -118,7 +129,7 @@ public class PostActivity extends AppCompatActivity {
 // Retrieve the String passed from ActivityA using the key
         if (intent != null) {
             Location = intent.getStringExtra("Location");
-            Toast.makeText(this, "Location: " + Location, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Location: " + Location, Toast.LENGTH_SHORT).show();
             if( Location != null ) location.setText(Location);
             Latitude = intent.getDoubleExtra("Latitude", 0.0);
             Longitude = intent.getDoubleExtra("Longitude", 0.0);
@@ -175,7 +186,7 @@ public class PostActivity extends AppCompatActivity {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(PostActivity.this, "No posts exist for this location", Toast.LENGTH_SHORT).show();
+                Toast.makeText(PostActivity.this, "An error occured", Toast.LENGTH_SHORT).show();
             }
         });
 

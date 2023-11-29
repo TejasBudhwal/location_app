@@ -54,9 +54,11 @@
             android:background="@drawable/rounded_edittext"
             android:backgroundTint="@color/white"
             android:ems="10"
+            android:textSize="15sp"
             android:hint="Type Location"
             android:inputType="text"
             android:textColor="@color/black"
+            android:paddingStart="15dp"
             app:layout_constraintStart_toStartOf="@+id/map"
             app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
 
@@ -85,7 +87,7 @@
             android:drawablePadding="8dp"
             android:padding="16dp"
             android:gravity="center"
-            android:drawableStart="@drawable/img" />
+            android:drawableStart="@drawable/add_location" />
 
 
 

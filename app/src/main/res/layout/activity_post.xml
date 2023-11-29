@@ -4,13 +4,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background2"
+    android:background="@drawable/buildings2"
     tools:context=".PostActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
+
+        <Button
+            android:id="@+id/backButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="Back"
+            android:background="@drawable/custom_button_background"
+            android:textColor="#FFFFFF" />
 
         <TextView
             android:id="@+id/pfli"
@@ -22,7 +31,7 @@
             android:layout_marginBottom="5dp"
             android:text="Post"
             android:textStyle="bold"
-            android:textSize="25sp"
+            android:textSize="30sp"
             android:padding="15dp"
             android:textColor="@color/white"
             android:textColorHint="@color/white" />
@@ -44,7 +53,7 @@
         <TextView
             android:id="@+id/pfli_location"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="70dp"
             android:layout_marginHorizontal="10dp"
             android:layout_marginVertical="5dp"
             android:background="#30ffffff"
@@ -58,7 +67,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="10dp"
-            android:layout_marginVertical="20dp"
+            android:layout_marginVertical="5dp"
             android:background="#30ffffff"
             android:hint="Description"
             android:padding="15dp"
@@ -72,30 +81,25 @@
             android:layout_gravity="center"
             tools:srcCompat="@tools:sample/avatars" />
 
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/pfli_image_select"
-            android:layout_width="120dp"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="20dp"
-            android:backgroundTint="#4CAF50"
-            android:gravity="center"
             android:text="Select Image"
-            app:layout_constraintTop_toBottomOf="@id/pfli_image"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:layout_margin="5dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/custom_button_background"
+            android:textColor="#FFFFFF"/>
 
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/pfli_post"
-            android:layout_width="120dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:backgroundTint="#4CAF50"
-            android:gravity="center"
             android:text="Post"
-            app:layout_constraintTop_toBottomOf="@id/pfli_image_select"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:layout_margin="5dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/custom_button_background"
+            android:textColor="#FFFFFF"/>
 
 
     </LinearLayout>
