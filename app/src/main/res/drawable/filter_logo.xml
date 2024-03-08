@@ -1,0 +1,21 @@
+<!-- res/drawable/filter_button.xml -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <!-- Filter icon -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M6,4L6,5L2,5C2,6.104,2.896,7,4,7L44,7C45.104,7,46,6.104,46,5L46,5L46,4C46,2.896,45.104,2,44,2L4,2C2.896,2,2,2.896,2,4L2,4Z"/>
+
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M14,14L14,15L2,15C2,16.104,2.896,17,4,17L44,17C45.104,17,46,16.104,46,15L46,15L46,14C46,12.896,45.104,12,44,12L4,12C2.896,12,2,12.896,2,14L2,14Z"/>
+
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M22,24L22,25L2,25C2,26.104,2.896,27,4,27L44,27C45.104,27,46,26.104,46,25L46,25L46,24C46,22.896,45.104,22,44,22L4,22C2.896,22,2,22.896,2,24L2,24Z"/>
+</vector>

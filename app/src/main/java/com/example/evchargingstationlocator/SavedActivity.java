@@ -455,6 +455,13 @@ public class SavedActivity extends AppCompatActivity implements OnMapReadyCallba
             startActivity(intent);
             finish();
         }
+        else if(item.getItemId()==R.id.PathFinder){
+            Intent intent = new Intent(SavedActivity.this,PathFinder.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                    | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        }
         else if(item.getItemId()==R.id.share){
             Toast.makeText(this, "Please Share", Toast.LENGTH_SHORT).show();
         }

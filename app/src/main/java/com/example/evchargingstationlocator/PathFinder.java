@@ -16,8 +16,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -94,12 +92,20 @@ import androidx.appcompat.app.AppCompatActivity;
 //import com.graphhopper.directions.api.client.model.RouteResponsePath;
 //import com.graphhopper.directions.api.client.GraphHopperDirections;
 
-public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleMap.OnMapClickListener, NavigationView.OnNavigationItemSelectedListener {
+public class PathFinder extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleMap.OnMapClickListener, NavigationView.OnNavigationItemSelectedListener {
+
+    static {
+        System.loadLibrary("evchargingstationlocator");
+    }
+
+    public native double[] findOptimalPath(double startLat, double startLon, double endLat, double endLon, double[] petrolStations);
+
+
 
     ImageView imageViewSearch;
     EditText inputlocation;
     Button mapClicked;
-    private Marker marker;
+    private Marker marker,marker1;
 
     DrawerLayout drawerLayout;
     NavigationView navigationView;
@@ -119,11 +125,6 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
     private SeekBar batterySlider;
     private View overlay;
 
-    private int radius_input;
-    private int battery_input;
-    private int vehicle_input;
-
-    private String[] vehicles = {"car", "truck", "smalltruck", "foot", "scooter", "bike"};
 
     private GoogleMap myMap;
     LatLng delhi = new LatLng(28.644800, 77.216721);
@@ -135,8 +136,7 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_evcharger);
-
+        setContentView(R.layout.activity_path_finder);
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
@@ -145,104 +145,10 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
         //Toast.makeText(this, ""+user_id, Toast.LENGTH_SHORT).show();
         databaseReference = firebaseDatabase.getReference("Users").child(user_id).child("Locations");
 
-
-
 //        Toolbar toolbar = (Toolbar)
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
-
-        filterButton = findViewById(R.id.filterButton);
-        filterView = findViewById(R.id.filterView);
-        vehicleSpinner = findViewById(R.id.vehicleSpinner);
-        radiusSlider = findViewById(R.id.radiusSlider);
-        batterySlider = findViewById(R.id.batterySlider);
-        overlay = findViewById(R.id.overlay);
-
-        filterButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                Toast.makeText(EVChargerActivity.this, "Button was clicked", Toast.LENGTH_SHORT).show();
-                toggleFilterViewVisibility();
-            }
-        });
-
-        // Set OnClickListener for the overlay
-        overlay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Hide the filterView and overlay
-                filterView.setVisibility(View.GONE);
-                overlay.setVisibility(View.GONE);
-            }
-        });
-
-        radiusSlider.setProgress(0); // Initial value
-        batterySlider.setProgress(0); // Initial value
-
-        // Set up listeners for SeekBars
-        radiusSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                // Update min and max radius values dynamically
-                TextView radiusValue = findViewById(R.id.radiusValue);
-                radiusValue.setText(String.valueOf(progress+1));
-                radius_input = progress+1;
-                //Toast.makeText(EVChargerActivity.this, "radius="+radius_input, Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-            }
-        });
-
-        batterySlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                // Update min and max battery values dynamically
-                TextView batteryValue = findViewById(R.id.batteryValue);
-                batteryValue.setText(String.valueOf(progress));
-                battery_input = progress;
-                //Toast.makeText(EVChargerActivity.this, "battery="+battery_input, Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-            }
-        });
-
-        // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.vehicle_types, android.R.layout.simple_spinner_item);
-
-        // Specify the layout to use when the list of choices appears
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        // Apply the adapter to the spinner
-        vehicleSpinner.setAdapter(adapter);
-
-        // Set an item selected listener on the spinner
-        vehicleSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                // Retrieve the selected index
-                vehicle_input = position;
-                //Toast.makeText(EVChargerActivity.this, "vehicle_input="+vehicle_input, Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // Do nothing
-            }
-        });
 
         Button saveLocationButton = findViewById(R.id.button); // Replace with the ID of your button
         saveLocationButton.setOnClickListener(new View.OnClickListener() {
@@ -285,7 +191,7 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
                     // Move the camera to the marker with the defined zoom level
                     myMap.animateCamera(cameraUpdate);
                 } else {
-                    Toast.makeText(EVChargerActivity.this, "No location to save", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PathFinder.this, "No location to save", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -294,7 +200,7 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
 
         // using toolbar as ActionBar
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("EV Charger");
+        getSupportActionBar().setTitle("Path Finder");
 
         toolbar.inflateMenu(R.menu.menu);
 //        mapView.findViewById(R.id.mapView);
@@ -331,16 +237,15 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
             public void onClick(View v) {
                 String location =inputlocation.getText().toString();
                 if(location==null){
-                    Toast.makeText(EVChargerActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PathFinder.this, "Type any location", Toast.LENGTH_SHORT).show();
                 }else{
-                    Geocoder geocoder=new Geocoder(EVChargerActivity.this, Locale.getDefault());
+                    Geocoder geocoder=new Geocoder(PathFinder.this, Locale.getDefault());
                     try {
                         List<Address> listAddress=geocoder.getFromLocationName(location,1);
                         if(listAddress.size()>0){
-                            myMap.clear();
                             LatLng latLng=new LatLng(listAddress.get(0).getLatitude(),listAddress.get(0).getLongitude());
                             // Add a marker on the map coordinates.
-                            marker = myMap.addMarker(new MarkerOptions().position(latLng).title("Current Location"));
+                            marker1 = myMap.addMarker(new MarkerOptions().position(latLng).title("Current Location"));
 
 //                            myMap.setOnMarkerClickListener(this);
                             // Move the camera to the map coordinates and zoom in closer.
@@ -349,14 +254,14 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
 //        googleMap.animateCamera(CameraUpdateFactory.zoomTo(15));
                         }
                     } catch (IOException e) {
-                        Toast.makeText(EVChargerActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(PathFinder.this, "Type any location", Toast.LENGTH_SHORT).show();
 //                        throw new RuntimeException(e);
                     }
                 }
             }
         });
         navigationView.setNavigationItemSelectedListener(this);
-        navigationView.setCheckedItem(R.id.MarkedLocation);
+        navigationView.setCheckedItem(R.id.PathFinder);
     }
 
     private void toggleFilterViewVisibility() {
@@ -364,14 +269,14 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
 
             filterView.setVisibility(View.GONE);
             overlay.setVisibility(View.GONE);
-            //Toast.makeText(this, "Visibility set to GONE", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Visibility set to GONE", Toast.LENGTH_SHORT).show();
 
         } else {
 
 // Show the filterView and overlay
             filterView.setVisibility(View.VISIBLE);
             overlay.setVisibility(View.VISIBLE);
-            //Toast.makeText(this, "Visibility set to VISIBLE", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Visibility set to VISIBLE", Toast.LENGTH_SHORT).show();
 
         }
     }
@@ -385,7 +290,7 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
             Dialog dialog = googleApiAvailability.getErrorDialog(this, result, 201, new DialogInterface.OnCancelListener() {
                 @Override
                 public void onCancel(DialogInterface dialog) {
-                    Toast.makeText(EVChargerActivity.this, "User Canceled Dialoge", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PathFinder.this, "User Canceled Dialoge", Toast.LENGTH_SHORT).show();
                 }
             });
             dialog.show();
@@ -401,7 +306,7 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
             @Override
             public void onPermissionGranted(PermissionGrantedResponse permissionGrantedResponse) {
                 isPermissionGranter = true;
-                Toast.makeText(EVChargerActivity.this, "Permission Granted", Toast.LENGTH_SHORT).show();
+                Toast.makeText(PathFinder.this, "Permission Granted", Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -427,13 +332,13 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
 
 
         LatLng latLng = new LatLng(35.00116, 135.7681);
-        Geocoder geocoder=new Geocoder(EVChargerActivity.this, Locale.getDefault());
+        Geocoder geocoder=new Geocoder(PathFinder.this, Locale.getDefault());
         try {
             List<Address> listAddress=geocoder.getFromLocation(latLng.latitude,latLng.longitude,1);
             if(listAddress.size()>0){
                 myMap.clear();
                 // Add a marker on the map coordinates.
-                marker = myMap.addMarker(new MarkerOptions().position(latLng).title("Current Location"));
+//                marker = myMap.addMarker(new MarkerOptions().position(latLng).title("Current Location"));
                 mylat = latLng.latitude;
                 mylong = latLng.longitude;
                 myMap.setOnMarkerClickListener(this);
@@ -443,7 +348,7 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
 //        googleMap.animateCamera(CameraUpdateFactory.zoomTo(15));
             }
         } catch (IOException e) {
-            Toast.makeText(EVChargerActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
+            Toast.makeText(PathFinder.this, "Type any location", Toast.LENGTH_SHORT).show();
 //                        throw new RuntimeException(e);
         }
 
@@ -515,36 +420,32 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
 
             //Toast.makeText(this, "This is a different marker", Toast.LENGTH_SHORT).show();
 
-            String startPoint = ""+startlat+","+startlong;
-            String endPoint = ""+endlat+","+endlong;
-
-
-            String vehicle = vehicles[vehicle_input];
-
-            GraphHopperRoutingTask routingTask = new GraphHopperRoutingTask(vehicle, startPoint, endPoint, myMap, EVChargerActivity.this, new GraphHopperRoutingTask.RoutingCallback() {
-                @Override
-                public void onRoutingCompleted(String result) {
-                    // Handle the routing result here
-                    if (result != null) {
-                        Log.e("result = ", result);
-                    } else {
-                        Log.e("result = ", "no result obtained");
-                    }
-                }
-            });
-
-            routingTask.execute();
+//            String startPoint = ""+startlat+","+startlong;
+//            String endPoint = ""+endlat+","+endlong;
+//
+//            GraphHopperRoutingTask routingTask = new GraphHopperRoutingTask(startPoint, endPoint, myMap, PathFinder.this, new GraphHopperRoutingTask.RoutingCallback() {
+//                @Override
+//                public void onRoutingCompleted(String result) {
+//                    // Handle the routing result here
+//                    if (result != null) {
+//                        Log.e("result = ", result);
+//                    } else {
+//                        Log.e("result = ", "no result obtained");
+//                    }
+//                }
+//            });
+//
+//            routingTask.execute();
         }
         return false;
     }
 
     @Override
     public void onMapClick(@NonNull LatLng latLng) {
-        Geocoder geocoder = new Geocoder(EVChargerActivity.this, Locale.getDefault());
+        Geocoder geocoder = new Geocoder(PathFinder.this, Locale.getDefault());
         try {
             List<Address> listAddress = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
             if (listAddress.size() > 0) {
-                myMap.clear();
                 // Add a marker on the map coordinates.
                 marker = myMap.addMarker(new MarkerOptions().position(latLng).title("Current Location"));
                 mylat = latLng.latitude;
@@ -555,7 +456,7 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
                 //Toast.makeText(EVChargerActivity.this, listAddress.get(0).getCountryName(), Toast.LENGTH_SHORT).show();
             }
         } catch (IOException e) {
-            Toast.makeText(EVChargerActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
+            Toast.makeText(PathFinder.this, "Type any location", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -574,28 +475,21 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
         if(item.getItemId()==R.id.SimpleMap){
-            Intent intent = new Intent(EVChargerActivity.this,MapsActivity.class);
+            Intent intent = new Intent(PathFinder.this,MapsActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                     | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
         }
         else if(item.getItemId()==R.id.Saved_Locations){
-            Intent intent = new Intent(EVChargerActivity.this,SavedActivity.class);
+            Intent intent = new Intent(PathFinder.this,SavedActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                     | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
         }
         else if(item.getItemId()==R.id.MarkedLocation){
-//            Intent intent = new Intent(EVChargerActivity.this,EVChargerActivity.class);
-//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-//                    | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//            startActivity(intent);
-//            finish();
-        }
-        else if(item.getItemId()==R.id.PathFinder){
-            Intent intent = new Intent(EVChargerActivity.this,PathFinder.class);
+            Intent intent = new Intent(PathFinder.this,EVChargerActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                     | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
@@ -608,7 +502,7 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
             Toast.makeText(this, "Please Rate US", Toast.LENGTH_SHORT).show();
         }
         else if(item.getItemId()==R.id.profile_main){
-            Intent intent = new Intent(EVChargerActivity.this,ProfileActivity.class);
+            Intent intent = new Intent(PathFinder.this,ProfileActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                     | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
@@ -617,7 +511,7 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
         else if(item.getItemId()==R.id.logout_main){
             FirebaseAuth.getInstance().signOut(); // Sign out the user from Firebase
 
-            Intent intent = new Intent(EVChargerActivity.this, LoginActivity.class);
+            Intent intent = new Intent(PathFinder.this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
@@ -642,7 +536,7 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
 
             try {
                 String query = "[out:json];" +
-                        "node(around:" + (radius_input*1000) + "," + latitude + "," + longitude + ")[amenity=fuel];out;";
+                        "node(around:10000," + latitude + "," + longitude + ")[amenity=fuel];out;";
 
                 String url = "https://overpass-api.de/api/interpreter?data=" + URLEncoder.encode(query, "UTF-8");
 
@@ -694,70 +588,110 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
                     e.printStackTrace();
                 }
 
-                // Logging latitudeList
-                Log.d("LatitudeList", "Latitude List:");
-                for (double lat : latitudeList) {
-                    Log.d("LatitudeList", String.valueOf(lat));
+                double startLat = marker.getPosition().latitude;
+                double startLon = marker.getPosition().longitude;
+                double endLat = marker1.getPosition().latitude;
+                double endLon = marker1.getPosition().longitude;
+
+                // Assuming you have latitudeList and longitudeList populated
+                double[] petrolStations = new double[latitudeList.size() * 2];
+                for (int i = 0; i < latitudeList.size(); i++) {
+                    petrolStations[i * 2] = latitudeList.get(i);
+                    petrolStations[i * 2 + 1] = longitudeList.get(i);
                 }
 
-                // Logging longitudeList
-                Log.d("LongitudeList", "Longitude List:");
-                for (double lon : longitudeList) {
-                    Log.d("LongitudeList", String.valueOf(lon));
+                // Call the native method to get the optimal path
+                PathFinder pathFinder = new PathFinder();
+                double[] pathCoordinates = pathFinder.findOptimalPath(startLat, startLon, endLat, endLon, petrolStations);
+
+                if(pathCoordinates.length == 0)
+                {
+                    Toast.makeText(pathFinder, "No path found", Toast.LENGTH_SHORT).show();
                 }
+                else {
+                    // Process the returned coordinates
+                    for (int i = 2; i < pathCoordinates.length - 2; i += 2) {
+                        double lat = pathCoordinates[i];
+                        double lon = pathCoordinates[i + 1];
+                        // Mark the position on the map or do any other processing
+                        Log.d("PATH_COORDINATE", "Latitude: " + lat + ", Longitude: " + lon);
+                        double curlat = pathCoordinates[i];
+                        double curlong = pathCoordinates[i + 1];
+                        double nextlat = pathCoordinates[i + 2];
+                        double nextlong = pathCoordinates[i + 3];
 
+                        String startPoint = "" + curlat + "," + curlong;
+                        String endPoint = "" + nextlat + "," + nextlong;
 
-                try {
-                    JSONObject jsonResponseObj = new JSONObject(jsonResponse);
-                    JSONArray elementsArray = jsonResponseObj.getJSONArray("elements");
-
-                    int i=0;
-                    for (; i < elementsArray.length(); i++) {
-                        JSONObject element = elementsArray.getJSONObject(i);
-                        if (element.has("lat") && element.has("lon")) {
-                            double latitude = element.getDouble("lat");
-                            double longitude = element.getDouble("lon");
-                            String fuelName = "EV Charger Station"; // Default value if name is not available
-                            JSONObject tags = element.optJSONObject("tags");
-                            if (tags != null && tags.has("name")) {
-                                fuelName = tags.getString("name");
+                        GraphHopperRoutingTask routingTask = new GraphHopperRoutingTask("car", startPoint, endPoint, myMap, PathFinder.this, new GraphHopperRoutingTask.RoutingCallback() {
+                            @Override
+                            public void onRoutingCompleted(String result) {
+                                // Handle the routing result here
+                                if (result != null) {
+                                    Log.e("result = ", result);
+                                } else {
+                                    Log.e("result = ", "no result obtained");
+                                }
                             }
+                        });
+
+                        routingTask.execute();
+
+                        LatLng fuelLatLng = new LatLng(curlat, curlong);
+
+                        // Add marker for each EV charger station location
+                        MarkerOptions markerOptions = new MarkerOptions()
+                                .position(fuelLatLng)
+                                .title("Station" + (i / 2 - 1)); // Get EV charger station name if available, else use default "EV Charger Station" as title
+
+                        // Add the marker to the map
+                        Marker fuelMarker = myMap.addMarker(markerOptions);
+                        fuelMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
 
 
-                            // Create LatLng object for EV charger station location
-                            LatLng fuelLatLng = new LatLng(latitude, longitude);
+                    }
+                    int leng = pathCoordinates.length;
+                    double nextlat = pathCoordinates[0];
+                    double nextlong = pathCoordinates[1];
+                    LatLng fuelLatLng1 = new LatLng(nextlat, nextlong);
 
-                            // Add marker for each EV charger station location
-                            MarkerOptions markerOptions = new MarkerOptions()
-                                    .position(fuelLatLng)
-                                    .title(fuelName); // Get EV charger station name if available, else use default "EV Charger Station" as title
+                    // Add marker for each EV charger station location
+                    MarkerOptions markerOptions1 = new MarkerOptions()
+                            .position(fuelLatLng1)
+                            .title("Destination"); // Get EV charger station name if available, else use default "EV Charger Station" as title
 
-                            // Add the marker to the map
-                            Marker fuelMarker = myMap.addMarker(markerOptions);
-                            fuelMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                    // Add the marker to the map
+                    Marker fuelMarker1 = myMap.addMarker(markerOptions1);
+                    fuelMarker1.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
 
-                            //myMap.setOnMarkerClickListener((GoogleMap.OnMarkerClickListener) fuelMarker);
-                        }
+                    double curlat = pathCoordinates[2];
+                    double curlong = pathCoordinates[3];
+                    fuelLatLng1 = new LatLng(curlat, curlong);
+
+                    // Add marker for each EV charger station location
+                    markerOptions1 = new MarkerOptions()
+                            .position(fuelLatLng1)
+                            .title("Start"); // Get EV charger station name if available, else use default "EV Charger Station" as title
+
+                    // Add the marker to the map
+                    fuelMarker1 = myMap.addMarker(markerOptions1);
+                    fuelMarker1.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+
+                    // Logging latitudeList
+                    Log.d("LatitudeList", "Latitude List:");
+                    for (double lat : latitudeList) {
+                        Log.d("LatitudeList", String.valueOf(lat));
                     }
 
-                    if(i==0)
-                    {
-                        Toast.makeText(EVChargerActivity.this, "No charging stations found nearby", Toast.LENGTH_SHORT).show();
+                    // Logging longitudeList
+                    Log.d("LongitudeList", "Longitude List:");
+                    for (double lon : longitudeList) {
+                        Log.d("LongitudeList", String.valueOf(lon));
                     }
-                    else if(i==1)
-                    {
-                        Toast.makeText(EVChargerActivity.this, "Found "+i+" charging station nearby", Toast.LENGTH_SHORT).show();
-                    }
-                    else
-                    {
-                        Toast.makeText(EVChargerActivity.this, "Found "+i+" charging stations nearby", Toast.LENGTH_SHORT).show();
-                    }
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
                 }
+
             } else {
-                Toast.makeText(EVChargerActivity.this, "Error fetching data", Toast.LENGTH_SHORT).show();
+                Toast.makeText(PathFinder.this, "Error fetching data", Toast.LENGTH_SHORT).show();
             }
         }
     }

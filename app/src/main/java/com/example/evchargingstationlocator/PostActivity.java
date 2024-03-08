@@ -156,7 +156,7 @@ public class PostActivity extends AppCompatActivity {
                 else
                 {
                     uploadPost();
-                    Intent intent = new Intent(PostActivity.this, CheckPostsActivity.class);
+                    Intent intent = new Intent(PostActivity.this, SavedActivity.class);
                     startActivity(intent);
                     finish();
                 }

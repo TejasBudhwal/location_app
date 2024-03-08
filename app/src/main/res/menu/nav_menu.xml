@@ -13,6 +13,10 @@
         <item
             android:id="@+id/MarkedLocation"
             android:title="EV Charger"/>
+
+        <item
+            android:id="@+id/PathFinder"
+            android:title="Path Finder"/>
     </group>
 
 

@@ -15,6 +15,16 @@
         app:menu="@menu/nav_menu"
         android:layout_gravity="start"/>
 
+    <!-- Transparent overlay -->
+    <View
+        android:id="@+id/overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:background="#80000000"
+        android:clickable="true"
+        android:focusable="true" />
+
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="0dp"
@@ -74,15 +84,182 @@
             app:srcCompat="@drawable/baseline_search_24" />
 
         <Button
+            android:id="@+id/filterButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/filter_logo"
+            android:visibility="visible"
+            tools:visibility="visible"/>
+
+        <Button
             android:id="@+id/button"
             android:layout_width="126dp"
             android:layout_height="150dp"
             android:layout_marginLeft="5dp"
-            android:layout_marginTop="550dp"
+            android:layout_marginTop="500dp"
             android:background="@drawable/ic_baseline_charging_station_24"
             android:visibility="visible"
             tools:visibility="visible" />
 
+        <LinearLayout
+            android:id="@+id/filterView"
+            android:layout_width="350dp"
+            android:layout_height="350dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_marginTop="-550dp"
+            android:padding="16dp"
+            android:background="@android:color/transparent"
+            android:layout_gravity="center">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingStart="15dp"
+                android:layout_gravity="center">
+
+                <!-- Vehicle Type TextView -->
+                <TextView
+                    android:id="@+id/vS"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="30dp"
+                    android:background="#30ffffff"
+                    android:text="Vehicle Type"
+                    android:padding="15dp"
+                    android:paddingRight="40dp"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/black" />
+
+                <!-- Vehicle type spinner -->
+                <Spinner
+                    android:id="@+id/vehicleSpinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:entries="@array/vehicle_types"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingStart="15dp"
+                android:layout_gravity="center">
+
+                <!-- Radius TextView -->
+                <TextView
+                    android:id="@+id/rS3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="140dp"
+                    android:background="#30ffffff"
+                    android:text="Radius"
+                    android:padding="15dp"
+                    android:paddingRight="40dp"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/black" />
+
+                <TextView
+                    android:id="@+id/radiusValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="@color/black" />
+
+            </LinearLayout>
+
+            <!-- Radius slider -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingStart="15dp">
+
+                <TextView
+                    android:id="@+id/minRadiusValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1"
+                    android:textColor="@color/black" />
+
+                <SeekBar
+                    android:id="@+id/radiusSlider"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:max="9"
+                    android:progress="0"/>
+
+                <TextView
+                    android:id="@+id/maxRadiusValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="10"
+                    android:textColor="@color/black" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingStart="15dp"
+                android:layout_gravity="center">
+
+                <!-- Battery TextView -->
+                <TextView
+                    android:id="@+id/rS2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="140dp"
+                    android:background="#30ffffff"
+                    android:text="Battery"
+                    android:padding="15dp"
+                    android:paddingRight="40dp"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/black" />
+
+                <TextView
+                    android:id="@+id/batteryValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="@color/black" />
+
+            </LinearLayout>
+
+            <!-- Battery level slider -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingStart="15dp">
+
+                <TextView
+                    android:id="@+id/minBatteryValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="@color/black" />
+
+                <SeekBar
+                    android:id="@+id/batterySlider"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:max="100"
+                    android:progress="0"/>
+
+                <TextView
+                    android:id="@+id/maxBatteryValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="100"
+                    android:textColor="@color/black" />
+            </LinearLayout>
+
+        </LinearLayout>
 
 
     </com.google.android.material.appbar.AppBarLayout>

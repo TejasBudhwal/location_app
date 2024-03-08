@@ -33,7 +33,7 @@ public class GraphHopperRoutingTask extends AsyncTask<Void, Void, String> {
     private Context mContext;
 
 
-    public GraphHopperRoutingTask(String startPoint, String endPoint, GoogleMap map, Context context, RoutingCallback callback) {
+    public GraphHopperRoutingTask(String vehicle, String startPoint, String endPoint, GoogleMap map, Context context, RoutingCallback callback) {
         this.startPoint = startPoint;
         this.endPoint = endPoint;
         this.callback = callback;
@@ -41,7 +41,7 @@ public class GraphHopperRoutingTask extends AsyncTask<Void, Void, String> {
 
         this.mContext = context;
 
-        this.apiUrl = "https://graphhopper.com/api/1/route?point=" + startPoint + "&point=" + endPoint + "&snap_prevention=motorway&snap_prevention=ferry&snap_prevention=tunnel&details=road_class&details=surface&profile=car&locale=de&instructions=true&calc_points=true&points_encoded=false&key=" + apiKey;
+        this.apiUrl = "https://graphhopper.com/api/1/route?point=" + startPoint + "&point=" + endPoint + "&snap_prevention=motorway&snap_prevention=ferry&snap_prevention=tunnel&details=road_class&details=surface&profile="+vehicle+"&locale=de&instructions=true&calc_points=true&points_encoded=false&key=" + apiKey;
     }
 
     @Override

@@ -50,7 +50,7 @@
             android:textSize="15sp"
             android:layout_margin="10dp"
             android:hint="Password"
-            android:inputType="text"
+            android:inputType="textPassword"
             android:textColor="@color/black"
             android:paddingStart="15dp"/>
 
