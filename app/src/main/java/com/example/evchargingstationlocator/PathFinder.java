@@ -100,8 +100,6 @@ public class PathFinder extends AppCompatActivity implements OnMapReadyCallback,
 
     public native double[] findOptimalPath(double startLat, double startLon, double endLat, double endLon, double[] petrolStations);
 
-
-
     ImageView imageViewSearch;
     EditText inputlocation;
     Button mapClicked;
@@ -117,6 +115,7 @@ public class PathFinder extends AppCompatActivity implements OnMapReadyCallback,
     // creating a variable for our Database
     // Reference for Firebase.
     DatabaseReference databaseReference;
+    DatabaseReference requestReference;
 
     private Button filterButton;
     private LinearLayout filterView;
@@ -125,6 +124,7 @@ public class PathFinder extends AppCompatActivity implements OnMapReadyCallback,
     private SeekBar batterySlider;
     private View overlay;
 
+    String userMail;
 
     private GoogleMap myMap;
     LatLng delhi = new LatLng(28.644800, 77.216721);
@@ -142,8 +142,11 @@ public class PathFinder extends AppCompatActivity implements OnMapReadyCallback,
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
         String user_id = currentUser.getUid();
+        userMail = currentUser.getEmail();
         //Toast.makeText(this, ""+user_id, Toast.LENGTH_SHORT).show();
         databaseReference = firebaseDatabase.getReference("Users").child(user_id).child("Locations");
+
+        requestReference = firebaseDatabase.getReference("Charging Requests");
 
 //        Toolbar toolbar = (Toolbar)
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -609,10 +612,62 @@ public class PathFinder extends AppCompatActivity implements OnMapReadyCallback,
                     Toast.makeText(pathFinder, "No path found", Toast.LENGTH_SHORT).show();
                 }
                 else {
+                    //
                     // Process the returned coordinates
                     for (int i = 2; i < pathCoordinates.length - 2; i += 2) {
                         double lat = pathCoordinates[i];
                         double lon = pathCoordinates[i + 1];
+
+
+                        //Send request to station owner for booking the station for charging
+                        DatabaseReference ownersRef = FirebaseDatabase.getInstance().getReference().child("Owners");
+                        ownersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                for (DataSnapshot ownerSnapshot : snapshot.getChildren())
+                                {
+                                    String ownerMail = ownerSnapshot.child("email").getValue(String.class);
+                                    String ownerKey = ownerSnapshot.getKey();
+                                    DatabaseReference locRef = ownersRef.child(ownerKey).child("Locations");
+                                    locRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot datasnapshot) {
+                                            for(DataSnapshot locSnapshot : datasnapshot.getChildren())
+                                            {
+                                                Double latti = locSnapshot.child("latitude").getValue(Double.class);
+                                                Double longi = locSnapshot.child("longitude").getValue(Double.class);
+
+//                                                Toast.makeText(PathFinder.this, "station lat: "+latti+" looking for: "+lat, Toast.LENGTH_SHORT).show();
+
+                                                if(latti==lat && longi==lon)
+                                                {
+                                                    DatabaseReference newLocationRef = requestReference.push();
+                                                    newLocationRef.child("Latitude").setValue(lat);
+                                                    newLocationRef.child("Longitude").setValue(lon);
+                                                    newLocationRef.child("Owner Email").setValue(ownerMail);
+                                                    newLocationRef.child("User Email").setValue(userMail);
+                                                    Toast.makeText(PathFinder.this, "Charging request sent to station owner", Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError error) {
+
+                                        }
+                                    });
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
+
+
+
+
                         // Mark the position on the map or do any other processing
                         Log.d("PATH_COORDINATE", "Latitude: " + lat + ", Longitude: " + lon);
                         double curlat = pathCoordinates[i];
