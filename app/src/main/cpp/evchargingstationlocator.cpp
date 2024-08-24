@@ -15,6 +15,7 @@ using namespace std;
 // here we assume it goes 2 km with 1% baterry
 #define id 2
 #define float double
+#define LIMIT 1
 
 
 // here we use haversince distance for calculatiing staight line distance
@@ -106,6 +107,18 @@ vector<pair<float,float>> route( float sx, float sy, float gx, float gy, vector<
     vector<pair<float,float>> fin_path;
 
     while(pq.size()>0){
+        if(pq.size()>LIMIT) {
+            vector<ppi> vec;
+            for(int i=0;i<LIMIT;i++){
+                auto it = pq.top();
+                pq.pop();
+                vec.push_back(it);
+            }
+            while(pq.size()>0) pq.pop();
+            for(auto it:vec){
+                pq.push(it);
+            }
+        }
         auto it = pq.top();
         pq.pop();
 

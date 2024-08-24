@@ -609,7 +609,8 @@ public class PathFinder extends AppCompatActivity implements OnMapReadyCallback,
 
                 if(pathCoordinates.length == 0)
                 {
-                    Toast.makeText(pathFinder, "No path found", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PathFinder.this, "No path found", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(pathFinder, "No path found", Toast.LENGTH_SHORT).show();
                 }
                 else {
                     //
