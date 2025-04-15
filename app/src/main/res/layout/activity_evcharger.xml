@@ -93,15 +93,29 @@
             android:visibility="visible"
             tools:visibility="visible"/>
 
+        <ImageButton
+            android:id="@+id/chatbotButton"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/round_button_background"
+            android:src="@drawable/ic_chat"
+            android:elevation="6dp"
+            android:contentDescription="Chat Assistant"
+            app:layout_constraintTop_toBottomOf="@+id/filterButton"/>
+
         <Button
             android:id="@+id/button"
             android:layout_width="126dp"
             android:layout_height="150dp"
             android:layout_marginLeft="5dp"
-            android:layout_marginTop="500dp"
+            android:layout_marginTop="450dp"
             android:background="@drawable/ic_baseline_charging_station_24"
             android:visibility="visible"
             tools:visibility="visible" />
+
+
 
         <LinearLayout
             android:id="@+id/filterView"
@@ -260,6 +274,7 @@
             </LinearLayout>
 
         </LinearLayout>
+
 
 
     </com.google.android.material.appbar.AppBarLayout>

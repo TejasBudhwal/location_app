@@ -1,6 +1,7 @@
 package com.example.evchargingstationlocator;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,11 +11,13 @@ import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -50,6 +53,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 
@@ -58,14 +62,27 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import android.os.Bundle;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.RelativeLayout;
+
+import androidx.appcompat.app.AppCompatActivity;
+import com.example.evchargingstationlocator.PathFinder;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleMap.OnMapClickListener, NavigationView.OnNavigationItemSelectedListener {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleMap.OnMapClickListener, NavigationView.OnNavigationItemSelectedListener, UniversalChatbotDialog.OnChatbotCommandListener{
+
+    private ImageButton chatbotButton;
 
     ImageView imageViewSearch;
     EditText inputlocation;
     Button mapClicked;
     private Marker marker;
+    protected FloatingActionButton chatFab;
+    protected ChatbotDialog chatbotDialog;
 
     DrawerLayout drawerLayout;
     NavigationView navigationView;
@@ -84,11 +101,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private MenuItem item;
 
     //    MapView mapView;
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        // Initialize chatbot button
+        chatbotButton = findViewById(R.id.chatbotButton);
+        chatbotButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showChatbot();
+            }
+        });
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
@@ -103,6 +129,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
+
+        Intent intent = getIntent();
+
+// Retrieve the String passed from ActivityA using the key
+        if (intent != null) {
+            String dd = intent.getStringExtra("Location");
+            double sx = intent.getDoubleExtra("Latitude", 0.0);
+            double sy = intent.getDoubleExtra("Longitude", 0.0);
+            saveLocationToFirebase(sx,sy);
+            // Now, 'receivedMessage' contains the String passed from ActivityA
+            // You can use this string as needed in ActivityB
+        }
 
 
         Button saveLocationButton = findViewById(R.id.button); // Replace with the ID of your button
@@ -492,4 +530,362 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         newLocationRef.child("Longitude").setValue(longitude);
     }
 
+//    @Override
+//    public void setContentView(int layoutResID) {
+//        super.setContentView(layoutResID);
+//        setupChatFab();
+//    }
+//
+//    protected void setupChatFab() {
+//        // Get the root view
+//        View rootView = ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
+//
+//        // Add FAB programmatically to avoid modifying all layout files
+//        if (rootView instanceof ViewGroup) {
+//            // Create FAB
+//            chatFab = new FloatingActionButton(this);
+//            chatFab.setId(View.generateViewId());
+//            chatFab.setImageResource(R.drawable.ic_chat);
+//            chatFab.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
+//
+//            // Create layout params
+//            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+//                    RelativeLayout.LayoutParams.WRAP_CONTENT,
+//                    RelativeLayout.LayoutParams.WRAP_CONTENT);
+//            params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+//            params.addRule(RelativeLayout.ALIGN_PARENT_END);
+//            int margin = (int) getResources().getDimension(R.dimen.fab_margin);
+//            params.setMargins(margin, margin, margin, margin);
+//
+//            // Add FAB to the root view if it's a RelativeLayout
+//            if (rootView instanceof RelativeLayout) {
+//                ((RelativeLayout) rootView).addView(chatFab, params);
+//            }
+//            // If not a RelativeLayout, we wrap the content in one
+//            else {
+//                // Remove the rootView from its parent
+//                ((ViewGroup) rootView.getParent()).removeView(rootView);
+//
+//                // Create a new RelativeLayout
+//                RelativeLayout newRoot = new RelativeLayout(this);
+//                newRoot.setLayoutParams(new ViewGroup.LayoutParams(
+//                        ViewGroup.LayoutParams.MATCH_PARENT,
+//                        ViewGroup.LayoutParams.MATCH_PARENT));
+//
+//                // Add the original rootView to the new RelativeLayout
+//                RelativeLayout.LayoutParams rootParams = new RelativeLayout.LayoutParams(
+//                        RelativeLayout.LayoutParams.MATCH_PARENT,
+//                        RelativeLayout.LayoutParams.MATCH_PARENT);
+//                newRoot.addView(rootView, rootParams);
+//
+//                // Add the FAB to the new RelativeLayout
+//                newRoot.addView(chatFab, params);
+//
+//                // Set the new RelativeLayout as the content view
+//                ((ViewGroup) findViewById(android.R.id.content)).addView(newRoot);
+//            }
+//
+//            // Set click listener for FAB
+//            chatFab.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    showChatbot();
+//                }
+//            });
+//        }
+//    }
+//
+//    private void showChatbot() {
+//        if (chatbotDialog == null) {
+//            chatbotDialog = new ChatbotDialog(this, this);
+//        }
+//        chatbotDialog.show();
+//    }
+//
+//    @Override
+//    public void findEVChargers(String location, String vehicleType, int radius) {
+//        double sx = 0, sy = 0, dx = 0, dy = 0;
+//        Geocoder geocoder=new Geocoder(MapsActivity.this, Locale.getDefault());
+//        try {
+//            List<Address> listAddress=geocoder.getFromLocationName(location,1);
+//            if(listAddress.size()>0){
+//                sx = listAddress.get(0).getLatitude();
+//                sy = listAddress.get(0).getLongitude();
+//                LatLng latLng=new LatLng(listAddress.get(0).getLatitude(),listAddress.get(0).getLongitude());
+//            }
+//        } catch (IOException e) {
+//            Toast.makeText(MapsActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
+////                        throw new RuntimeException(e);
+//        }
+//        Intent intent = new Intent(MapsActivity.this, EVChargerActivity.class);
+//
+//        Log.e("MapsInfo", "radius="+radius);
+//
+//        // Pass the coordinates as extras
+//        intent.putExtra("START_LAT", sx);
+//        intent.putExtra("START_LNG", sy);
+//        intent.putExtra("DEST_LAT", vehicleType);
+//        intent.putExtra("DEST_LNG", radius);
+//
+//        startActivity(intent);
+//    }
+//
+//    @Override
+//    public void getDirections(String source, String destination) {
+//        double sx = 0, sy = 0, dx = 0, dy = 0;
+//        Geocoder geocoder=new Geocoder(MapsActivity.this, Locale.getDefault());
+//        try {
+//            List<Address> listAddress=geocoder.getFromLocationName(source,1);
+//            if(listAddress.size()>0){
+//                sx = listAddress.get(0).getLatitude();
+//                sy = listAddress.get(0).getLongitude();
+//                LatLng latLng=new LatLng(listAddress.get(0).getLatitude(),listAddress.get(0).getLongitude());
+//            }
+//        } catch (IOException e) {
+//            Toast.makeText(MapsActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
+////                        throw new RuntimeException(e);
+//        }
+//        try {
+//            List<Address> listAddress=geocoder.getFromLocationName(destination,1);
+//            if(listAddress.size()>0){
+//                dx = listAddress.get(0).getLatitude();
+//                dy = listAddress.get(0).getLongitude();
+//                LatLng latLng=new LatLng(listAddress.get(0).getLatitude(),listAddress.get(0).getLongitude());
+//            }
+//        } catch (IOException e) {
+//            Toast.makeText(MapsActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
+////                        throw new RuntimeException(e);
+//        }
+//        launchPathFinderWithCoordinates(sx, sy, dx, dy);
+//    }
+//
+//    @Override
+//    public void saveLocation(String location, String label) {
+//        double sx = 0, sy = 0;
+//        Geocoder geocoder=new Geocoder(MapsActivity.this, Locale.getDefault());
+//        try {
+//            List<Address> listAddress=geocoder.getFromLocationName(location,1);
+//            if(listAddress.size()>0){
+//                sx = listAddress.get(0).getLatitude();
+//                sy = listAddress.get(0).getLongitude();
+//                LatLng latLng=new LatLng(listAddress.get(0).getLatitude(),listAddress.get(0).getLongitude());
+//            }
+//        } catch (IOException e) {
+//            Toast.makeText(MapsActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
+////                        throw new RuntimeException(e);
+//        }
+//
+//        saveLocationToFirebase(sx, sy);
+//        Toast.makeText(MapsActivity.this, "Location saved to Firebase", Toast.LENGTH_SHORT).show();
+//    }
+//
+//    @Override
+//    public void viewSavedLocations() {
+//        Intent intent = new Intent(MapsActivity.this, SavedActivity.class);
+//        startActivity(intent);
+//    }
+//
+//    @Override
+//    public void viewLocationPosts(String location) {
+//        double sx = 0, sy = 0;
+//        Geocoder geocoder=new Geocoder(MapsActivity.this, Locale.getDefault());
+//        try {
+//            List<Address> listAddress=geocoder.getFromLocationName(location,1);
+//            if(listAddress.size()>0){
+//                sx = listAddress.get(0).getLatitude();
+//                sy = listAddress.get(0).getLongitude();
+//                LatLng latLng=new LatLng(listAddress.get(0).getLatitude(),listAddress.get(0).getLongitude());
+//            }
+//        } catch (IOException e) {
+//            Toast.makeText(MapsActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
+////                        throw new RuntimeException(e);
+//        }
+//        Intent intent = new Intent(MapsActivity.this, CheckPostsActivity.class);
+//        intent.putExtra("Location", "Location");
+//        intent.putExtra("Latitude",sx);
+//        intent.putExtra("Longitude",sy);
+//        startActivity(intent);
+//    }
+//
+//    @Override
+//    public void createPost(String location, String content) {
+//        double sx = 0, sy = 0;
+//        Geocoder geocoder=new Geocoder(MapsActivity.this, Locale.getDefault());
+//        try {
+//            List<Address> listAddress=geocoder.getFromLocationName(location,1);
+//            if(listAddress.size()>0){
+//                sx = listAddress.get(0).getLatitude();
+//                sy = listAddress.get(0).getLongitude();
+//                LatLng latLng=new LatLng(listAddress.get(0).getLatitude(),listAddress.get(0).getLongitude());
+//            }
+//        } catch (IOException e) {
+//            Toast.makeText(MapsActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
+////                        throw new RuntimeException(e);
+//        }
+//        Intent intent = new Intent(MapsActivity.this, PostActivity.class);
+//        intent.putExtra("Location", "Location");
+//        intent.putExtra("Latitude",sx);
+//        intent.putExtra("Longitude",sy);
+//        startActivity(intent);
+//    }
+//
+//    // In MapsActivity.java
+//    private void launchPathFinderWithCoordinates(double sx, double sy, double dx, double dy) {
+//        Intent intent = new Intent(MapsActivity.this, PathFinder.class);
+//
+//        // Pass the coordinates as extras
+//        intent.putExtra("START_LAT", sx);
+//        intent.putExtra("START_LNG", sy);
+//        intent.putExtra("DEST_LAT", dx);
+//        intent.putExtra("DEST_LNG", dy);
+//
+//        startActivity(intent);
+//    }
+
+    private void showChatbot() {
+        UniversalChatbotDialog chatbotDialog = new UniversalChatbotDialog(this, this);
+        chatbotDialog.show();
+    }
+
+    // UniversalChatbotDialog.OnChatbotCommandListener implementations
+    @Override
+    public void findEVChargers(String location, String vehicleType, int radius) {
+        // Implementation from your original code
+        double sx = 0, sy = 0;
+        Geocoder geocoder = new Geocoder(MapsActivity.this, Locale.getDefault());
+        try {
+            List<Address> listAddress = geocoder.getFromLocationName(location, 1);
+            if (listAddress.size() > 0) {
+                sx = listAddress.get(0).getLatitude();
+                sy = listAddress.get(0).getLongitude();
+                LatLng latLng = new LatLng(listAddress.get(0).getLatitude(), listAddress.get(0).getLongitude());
+            }
+        } catch (IOException e) {
+            Toast.makeText(MapsActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
+        }
+
+        Intent intent = new Intent(MapsActivity.this, EVChargerActivity.class);
+
+        Log.e("MapsInfo", "radius=" + radius);
+
+        // Pass the coordinates as extras
+        intent.putExtra("START_LAT", sx);
+        intent.putExtra("START_LNG", sy);
+        intent.putExtra("DEST_LAT", vehicleType);
+        intent.putExtra("DEST_LNG", radius);
+
+        startActivity(intent);
+    }
+
+    @Override
+    public void getDirections(String source, String destination) {
+        // Implementation from your original code
+        double sx = 0, sy = 0, dx = 0, dy = 0;
+        Geocoder geocoder = new Geocoder(MapsActivity.this, Locale.getDefault());
+        try {
+            List<Address> listAddress = geocoder.getFromLocationName(source, 1);
+            if (listAddress.size() > 0) {
+                sx = listAddress.get(0).getLatitude();
+                sy = listAddress.get(0).getLongitude();
+                LatLng latLng = new LatLng(listAddress.get(0).getLatitude(), listAddress.get(0).getLongitude());
+            }
+        } catch (IOException e) {
+            Toast.makeText(MapsActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
+        }
+        try {
+            List<Address> listAddress = geocoder.getFromLocationName(destination, 1);
+            if (listAddress.size() > 0) {
+                dx = listAddress.get(0).getLatitude();
+                dy = listAddress.get(0).getLongitude();
+                LatLng latLng = new LatLng(listAddress.get(0).getLatitude(), listAddress.get(0).getLongitude());
+            }
+        } catch (IOException e) {
+            Toast.makeText(MapsActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
+        }
+        launchPathFinderWithCoordinates(sx, sy, dx, dy);
+    }
+
+    @Override
+    public void saveLocation(String location, String label) {
+        // Implementation from your original code
+        double sx = 0, sy = 0;
+        Geocoder geocoder = new Geocoder(MapsActivity.this, Locale.getDefault());
+        try {
+            List<Address> listAddress = geocoder.getFromLocationName(location, 1);
+            if (listAddress.size() > 0) {
+                sx = listAddress.get(0).getLatitude();
+                sy = listAddress.get(0).getLongitude();
+                LatLng latLng = new LatLng(listAddress.get(0).getLatitude(), listAddress.get(0).getLongitude());
+            }
+        } catch (IOException e) {
+            Toast.makeText(MapsActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
+        }
+
+        saveLocationToFirebase(sx, sy);
+        Toast.makeText(MapsActivity.this, "Location saved to Firebase", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void viewSavedLocations() {
+        // Implementation from your original code
+        Intent intent = new Intent(MapsActivity.this, SavedActivity.class);
+        startActivity(intent);
+    }
+
+    @Override
+    public void viewLocationPosts(String location) {
+        // Implementation from your original code
+        double sx = 0, sy = 0;
+        Geocoder geocoder = new Geocoder(MapsActivity.this, Locale.getDefault());
+        try {
+            List<Address> listAddress = geocoder.getFromLocationName(location, 1);
+            if (listAddress.size() > 0) {
+                sx = listAddress.get(0).getLatitude();
+                sy = listAddress.get(0).getLongitude();
+                LatLng latLng = new LatLng(listAddress.get(0).getLatitude(), listAddress.get(0).getLongitude());
+            }
+        } catch (IOException e) {
+            Toast.makeText(MapsActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
+        }
+        Intent intent = new Intent(MapsActivity.this, CheckPostsActivity.class);
+        intent.putExtra("Location", "Location");
+        intent.putExtra("Latitude",sx);
+        intent.putExtra("Longitude",sy);
+        startActivity(intent);
+    }
+
+    @Override
+    public void createPost(String location, String content) {
+        // Implementation from your original code
+        double sx = 0, sy = 0;
+        Geocoder geocoder = new Geocoder(MapsActivity.this, Locale.getDefault());
+        try {
+            List<Address> listAddress = geocoder.getFromLocationName(location, 1);
+            if (listAddress.size() > 0) {
+                sx = listAddress.get(0).getLatitude();
+                sy = listAddress.get(0).getLongitude();
+                LatLng latLng = new LatLng(listAddress.get(0).getLatitude(), listAddress.get(0).getLongitude());
+            }
+        } catch (IOException e) {
+            Toast.makeText(MapsActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
+        }
+        Intent intent = new Intent(MapsActivity.this, PostActivity.class);
+        intent.putExtra("Location", "Location: "+sx +" "+sy);
+        intent.putExtra("Latitude", sx);
+        intent.putExtra("Longitude", sy);
+        startActivity(intent);
+    }
+
+    // Your helper methods
+    private void launchPathFinderWithCoordinates(double sx, double sy, double dx, double dy) {
+        Intent intent = new Intent(MapsActivity.this, PathFinder.class);
+
+        // Pass the coordinates as extras
+        intent.putExtra("START_LAT", sx);
+        intent.putExtra("START_LNG", sy);
+        intent.putExtra("DEST_LAT", dx);
+        intent.putExtra("DEST_LNG", dy);
+
+        startActivity(intent);
+    }
 }

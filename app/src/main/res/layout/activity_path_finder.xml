@@ -7,82 +7,117 @@
     android:layout_height="match_parent"
     tools:context=".PathFinder"
     android:fitsSystemWindows="true">
+
+    <!-- Navigation View -->
     <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:id="@+id/nav_view"
+        android:layout_gravity="start"
         app:headerLayout="@layout/header_nav"
-        app:menu="@menu/nav_menu"
-        android:layout_gravity="start"/>
+        app:menu="@menu/nav_menu" />
 
+    <!-- Main App Layout -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#0861FA"
-            tools:layout_editor_absoluteX="0dp"
-            tools:layout_editor_absoluteY="0dp" />
+            android:layout_height="match_parent">
 
-        <fragment
-            android:id="@+id/map"
-            android:name="com.google.android.gms.maps.SupportMapFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="0dp"
-            android:layout_marginBottom="0dp"
-            android:paddingTop="0dp"
-            app:barrierDirection="left"
-            app:cameraTilt="30"
-            app:uiRotateGestures="true"
-            app:uiZoomControls="true" />
+            <!-- Toolbar -->
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#0861FA" />
 
-        <EditText
-            android:id="@+id/inputLocation"
-            android:layout_width="205dp"
-            android:layout_height="40dp"
-            android:layout_marginLeft="60dp"
-            android:layout_marginTop="-681dp"
-            android:background="@drawable/rounded_edittext"
-            android:backgroundTint="@color/white"
-            android:ems="10"
-            android:textSize="15sp"
-            android:hint="Type Location"
-            android:inputType="text"
-            android:textColor="@color/black"
-            android:paddingStart="15dp"
-            app:layout_constraintStart_toStartOf="@+id/map"
-            app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
+            <!-- Google Map Fragment -->
+            <fragment
+                android:id="@+id/map"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/toolbar" />
 
-        <ImageView
-            android:id="@+id/imageViewSearch"
-            android:layout_width="40dp"
-            android:layout_height="34dp"
-            android:layout_marginLeft="265dp"
-            android:layout_marginTop="-37dp"
-            app:layout_constraintBottom_toBottomOf="@+id/inputLocation"
-            app:layout_constraintStart_toEndOf="@+id/inputLocation"
-            app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
-            app:srcCompat="@drawable/baseline_search_24" />
+            <!-- First EditText -->
+            <EditText
+                android:id="@+id/inputLocation"
+                android:layout_width="205dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="60dp"
+                android:layout_marginStart="20dp"
+                android:layout_alignParentStart="true"
+                android:hint="Type Location"
+                android:background="@drawable/rounded_edittext"
+                android:backgroundTint="@color/white"
+                android:textColor="@color/black"
+                android:textSize="15sp"
+                android:paddingStart="15dp"
+                android:inputType="text" />
 
-        <Button
-            android:id="@+id/button"
-            android:layout_width="126dp"
-            android:layout_height="150dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginTop="500dp"
-            android:background="@drawable/ic_baseline_charging_station_24"
-            android:visibility="visible"
-            tools:visibility="visible" />
+            <!-- First Search Icon -->
+            <ImageView
+                android:id="@+id/imageViewSearch"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignTop="@id/inputLocation"
+                android:layout_toEndOf="@id/inputLocation"
+                android:layout_marginStart="10dp"
+                app:srcCompat="@drawable/baseline_search_24" />
 
+            <!-- Second EditText -->
+            <EditText
+                android:id="@+id/inputLocation1"
+                android:layout_width="205dp"
+                android:layout_height="40dp"
+                android:layout_below="@id/inputLocation"
+                android:layout_marginTop="20dp"
+                android:layout_marginStart="20dp"
+                android:layout_alignParentStart="true"
+                android:hint="Type Location 2"
+                android:background="@drawable/rounded_edittext"
+                android:backgroundTint="@color/white"
+                android:textColor="@color/black"
+                android:textSize="15sp"
+                android:paddingStart="15dp"
+                android:inputType="text" />
+
+            <!-- Second Search Icon -->
+            <ImageView
+                android:id="@+id/imageViewSearch1"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignTop="@id/inputLocation1"
+                android:layout_toEndOf="@id/inputLocation1"
+                android:layout_marginStart="10dp"
+                app:srcCompat="@drawable/baseline_search_24" />
+
+            <!-- Charging Button -->
+            <Button
+                android:id="@+id/button"
+                android:layout_width="126dp"
+                android:layout_height="150dp"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="10dp"
+                android:layout_marginStart="0dp"
+                android:background="@drawable/ic_baseline_charging_station_24"
+                android:visibility="visible"
+                tools:visibility="visible" />
+            <ImageButton
+                android:id="@+id/chatbotButton"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginRight="250dp"
+                android:background="@drawable/round_button_background"
+                android:src="@drawable/ic_chat"
+                android:elevation="6dp"
+                android:contentDescription="Chat Assistant" />
+        </RelativeLayout>
     </com.google.android.material.appbar.AppBarLayout>
-
 </androidx.drawerlayout.widget.DrawerLayout>

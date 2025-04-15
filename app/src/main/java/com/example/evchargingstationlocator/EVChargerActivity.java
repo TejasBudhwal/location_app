@@ -1,6 +1,7 @@
 package com.example.evchargingstationlocator;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -20,6 +21,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -67,6 +69,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -94,8 +97,9 @@ import androidx.appcompat.app.AppCompatActivity;
 //import com.graphhopper.directions.api.client.model.RouteResponsePath;
 //import com.graphhopper.directions.api.client.GraphHopperDirections;
 
-public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleMap.OnMapClickListener, NavigationView.OnNavigationItemSelectedListener {
+public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleMap.OnMapClickListener, NavigationView.OnNavigationItemSelectedListener, UniversalChatbotDialog.OnChatbotCommandListener {
 
+    private ImageButton chatbotButton;
     ImageView imageViewSearch;
     EditText inputlocation;
     Button mapClicked;
@@ -132,11 +136,19 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
     private MenuItem item;
 
     //    MapView mapView;
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_evcharger);
 
+        chatbotButton = findViewById(R.id.chatbotButton);
+        chatbotButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showChatbot();
+            }
+        });
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
@@ -158,6 +170,19 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
         radiusSlider = findViewById(R.id.radiusSlider);
         batterySlider = findViewById(R.id.batterySlider);
         overlay = findViewById(R.id.overlay);
+
+        double startLat = getIntent().getDoubleExtra("START_LAT", 0);
+        double startLng = getIntent().getDoubleExtra("START_LNG", 0);
+        vehicle_input  = Arrays.asList(vehicles).indexOf(getIntent().getStringExtra("DEST_LAT"));
+        radius_input = getIntent().getIntExtra("DEST_LNG", 0);
+
+
+        Log.e("Info", startLat+" "+startLng+" "+vehicle_input+" "+radius_input);
+
+        if(startLat!=0)
+        {
+            new OverpassAPITask().execute(startLat, startLng);
+        }
 
         filterButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -762,4 +787,155 @@ public class EVChargerActivity extends AppCompatActivity implements OnMapReadyCa
         }
     }
 
+    private void showChatbot() {
+        UniversalChatbotDialog chatbotDialog = new UniversalChatbotDialog(this, this);
+        chatbotDialog.show();
+    }
+
+    // UniversalChatbotDialog.OnChatbotCommandListener implementations
+    @Override
+    public void findEVChargers(String location, String vehicleType, int radius) {
+        // Implementation from your original code
+        double sx = 0, sy = 0;
+        Geocoder geocoder = new Geocoder(EVChargerActivity.this, Locale.getDefault());
+        try {
+            List<Address> listAddress = geocoder.getFromLocationName(location, 1);
+            if (listAddress.size() > 0) {
+                sx = listAddress.get(0).getLatitude();
+                sy = listAddress.get(0).getLongitude();
+                LatLng latLng = new LatLng(listAddress.get(0).getLatitude(), listAddress.get(0).getLongitude());
+            }
+        } catch (IOException e) {
+            Toast.makeText(EVChargerActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
+        }
+
+        Intent intent = new Intent(EVChargerActivity.this, EVChargerActivity.class);
+
+        Log.e("MapsInfo", "radius=" + radius);
+
+        // Pass the coordinates as extras
+        intent.putExtra("START_LAT", sx);
+        intent.putExtra("START_LNG", sy);
+        intent.putExtra("DEST_LAT", vehicleType);
+        intent.putExtra("DEST_LNG", radius);
+
+        startActivity(intent);
+    }
+
+    @Override
+    public void getDirections(String source, String destination) {
+        // Implementation from your original code
+        double sx = 0, sy = 0, dx = 0, dy = 0;
+        Geocoder geocoder = new Geocoder(EVChargerActivity.this, Locale.getDefault());
+        try {
+            List<Address> listAddress = geocoder.getFromLocationName(source, 1);
+            if (listAddress.size() > 0) {
+                sx = listAddress.get(0).getLatitude();
+                sy = listAddress.get(0).getLongitude();
+                LatLng latLng = new LatLng(listAddress.get(0).getLatitude(), listAddress.get(0).getLongitude());
+            }
+        } catch (IOException e) {
+            Toast.makeText(EVChargerActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
+        }
+        try {
+            List<Address> listAddress = geocoder.getFromLocationName(destination, 1);
+            if (listAddress.size() > 0) {
+                dx = listAddress.get(0).getLatitude();
+                dy = listAddress.get(0).getLongitude();
+                LatLng latLng = new LatLng(listAddress.get(0).getLatitude(), listAddress.get(0).getLongitude());
+            }
+        } catch (IOException e) {
+            Toast.makeText(EVChargerActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
+        }
+        launchPathFinderWithCoordinates(sx, sy, dx, dy);
+    }
+
+    @Override
+    public void saveLocation(String location, String label) {
+        // Implementation from your original code
+        double sx = 0, sy = 0;
+        Geocoder geocoder = new Geocoder(EVChargerActivity.this, Locale.getDefault());
+        try {
+            List<Address> listAddress = geocoder.getFromLocationName(location, 1);
+            if (listAddress.size() > 0) {
+                sx = listAddress.get(0).getLatitude();
+                sy = listAddress.get(0).getLongitude();
+                LatLng latLng = new LatLng(listAddress.get(0).getLatitude(), listAddress.get(0).getLongitude());
+            }
+        } catch (IOException e) {
+            Toast.makeText(EVChargerActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
+        }
+
+        Intent intent = new Intent(EVChargerActivity.this, MapsActivity.class);
+        intent.putExtra("Location", "Location: "+sx +" "+sy);
+        intent.putExtra("Latitude", sx);
+        intent.putExtra("Longitude", sy);
+        startActivity(intent);
+
+        Toast.makeText(EVChargerActivity.this, "Location saved to Firebase", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void viewSavedLocations() {
+        // Implementation from your original code
+        Intent intent = new Intent(EVChargerActivity.this, SavedActivity.class);
+        startActivity(intent);
+    }
+
+    @Override
+    public void viewLocationPosts(String location) {
+        // Implementation from your original code
+        double sx = 0, sy = 0;
+        Geocoder geocoder = new Geocoder(EVChargerActivity.this, Locale.getDefault());
+        try {
+            List<Address> listAddress = geocoder.getFromLocationName(location, 1);
+            if (listAddress.size() > 0) {
+                sx = listAddress.get(0).getLatitude();
+                sy = listAddress.get(0).getLongitude();
+                LatLng latLng = new LatLng(listAddress.get(0).getLatitude(), listAddress.get(0).getLongitude());
+            }
+        } catch (IOException e) {
+            Toast.makeText(EVChargerActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
+        }
+        Intent intent = new Intent(EVChargerActivity.this, CheckPostsActivity.class);
+        intent.putExtra("Location", "Location");
+        intent.putExtra("Latitude",sx);
+        intent.putExtra("Longitude",sy);
+        startActivity(intent);
+    }
+
+    @Override
+    public void createPost(String location, String content) {
+        // Implementation from your original code
+        double sx = 0, sy = 0;
+        Geocoder geocoder = new Geocoder(EVChargerActivity.this, Locale.getDefault());
+        try {
+            List<Address> listAddress = geocoder.getFromLocationName(location, 1);
+            if (listAddress.size() > 0) {
+                sx = listAddress.get(0).getLatitude();
+                sy = listAddress.get(0).getLongitude();
+                LatLng latLng = new LatLng(listAddress.get(0).getLatitude(), listAddress.get(0).getLongitude());
+            }
+        } catch (IOException e) {
+            Toast.makeText(EVChargerActivity.this, "Type any location", Toast.LENGTH_SHORT).show();
+        }
+        Intent intent = new Intent(EVChargerActivity.this, PostActivity.class);
+        intent.putExtra("Location", "Location: "+sx +" "+sy);
+        intent.putExtra("Latitude", sx);
+        intent.putExtra("Longitude", sy);
+        startActivity(intent);
+    }
+
+    // Your helper methods
+    private void launchPathFinderWithCoordinates(double sx, double sy, double dx, double dy) {
+        Intent intent = new Intent(EVChargerActivity.this, PathFinder.class);
+
+        // Pass the coordinates as extras
+        intent.putExtra("START_LAT", sx);
+        intent.putExtra("START_LNG", sy);
+        intent.putExtra("DEST_LAT", dx);
+        intent.putExtra("DEST_LNG", dy);
+
+        startActivity(intent);
+    }
 }

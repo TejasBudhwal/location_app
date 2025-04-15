@@ -133,6 +133,7 @@ public class PostActivity extends AppCompatActivity {
             if( Location != null ) location.setText(Location);
             Latitude = intent.getDoubleExtra("Latitude", 0.0);
             Longitude = intent.getDoubleExtra("Longitude", 0.0);
+            Toast.makeText(this, "Location: " + Latitude, Toast.LENGTH_SHORT).show();
             // Now, 'receivedMessage' contains the String passed from ActivityA
             // You can use this string as needed in ActivityB
         }

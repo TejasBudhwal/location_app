@@ -22,7 +22,7 @@ import java.util.List;
 
 public class GraphHopperRoutingTask extends AsyncTask<Void, Void, String> {
 
-    private final String apiKey = "be914761-9004-4ad2-8553-643db2fb596b"; // Replace with your actual API key
+    private final String apiKey = "be914761-9004-4ad2-8553-643db2fb596b";
     private String startPoint; // Starting point in latitude,longitude format
     private String endPoint; // Ending point in latitude,longitude format
     private String apiUrl; // URL for GraphHopper API
